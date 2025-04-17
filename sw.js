@@ -1,19 +1,20 @@
 // sw.js
 
-// Increment version AGAIN to ensure update
-const CACHE_NAME = 'surya-namaskar-cache-v4';
+// Increment version AGAIN
+const CACHE_NAME = 'surya-namaskar-cache-v5';
 
 // --- List ALL local assets EXPLICITLY using relative paths ---
+// (Copied from v4 - this part is correct)
 const LOCAL_ASSETS = [
-  // Core files (relative paths from where sw.js is served)
-  'index.html', // Or '/' if index.html is the root document
+  // Core files
+  'index.html', // Assuming served from root, adjust if needed
   'icon.png',
   // Audio files
   'assets/exhale.mp3',
   'assets/hold.mp3',
   'assets/inhale.mp3',
   'assets/soft_beep.mp3',
-  // Image files (List ONLY the unique ones needed)
+  // Image files
   'assets/Surya-Namaskar-step-1.jpg',
   'assets/Surya-Namaskar-step-2.jpg',
   'assets/Surya-Namaskar-step-3.jpg',
@@ -26,28 +27,31 @@ const LOCAL_ASSETS = [
 
 // Install event: Cache only LOCAL assets initially
 self.addEventListener('install', (event) => {
-  console.log(`[SW] Installing Cache: ${CACHE_NAME}`);
+  console.log(`[SW v5] Installing Cache: ${CACHE_NAME}`);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('[SW] Caching local assets');
+        console.log('[SW v5] Caching local assets');
+        // Cache ONLY the explicitly listed local assets
         return cache.addAll(LOCAL_ASSETS).catch(err => {
-          console.error('[SW] Failed to cache one or more local assets during install:', err);
+          console.error('[SW v5] Failed to cache one or more local assets during install:', err);
+          // Optional: You might want to throw the error to prevent installation if core assets fail
+          // throw err;
         });
       })
-      .then(() => self.skipWaiting()) // Activate immediately
+      .then(() => self.skipWaiting()) // Force activation
   );
 });
 
 // Activate event: Clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log(`[SW] Activating Cache: ${CACHE_NAME}`);
+  console.log(`[SW v5] Activating Cache: ${CACHE_NAME}`);
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.filter(name => name !== CACHE_NAME)
+        cacheNames.filter(name => name !== CACHE_NAME) // Filter out the current cache
           .map(name => {
-            console.log('[SW] Deleting old cache:', name);
+            console.log('[SW v5] Deleting old cache:', name);
             return caches.delete(name);
           })
       );
@@ -56,45 +60,63 @@ self.addEventListener('activate', (event) => {
 });
 
 
-// Fetch event: Cache-first strategy, BUT BYPASS for .mp3 files
+// Fetch event: Cache-first, then Network & Cache strategy for ALL requests
+// (Similar to your original v1, but install is more robust)
 self.addEventListener('fetch', (event) => {
-    // --- ADD THIS CHECK ---
-    // If the request is for an MP3 file, let the browser handle it directly
-    if (event.request.url.endsWith('.mp3')) {
-        // console.log(`[SW] Bypassing SW for: ${event.request.url}`);
-        return; // Exit the fetch handler
-    }
-    // ----------------------
-
-    // We only want to handle GET requests for other assets
+    // Only handle GET requests
     if (event.request.method !== 'GET') {
         return;
     }
 
-    // Proceed with Cache-First for non-MP3 assets
     event.respondWith(
         caches.match(event.request)
           .then(cachedResponse => {
+            // Cache hit - return response
             if (cachedResponse) {
-              return cachedResponse;
+                // console.log(`[SW v5] Serving from Cache: ${event.request.url}`);
+                return cachedResponse;
             }
+
+            // Not in cache - Fetch from network
+            // console.log(`[SW v5] Fetching from Network: ${event.request.url}`);
             return fetch(event.request)
               .then(response => {
-                if (!response || response.status !== 200 || response.type === 'error') {
-                  return response;
+                // Check if we received a valid response to cache
+                // Allow basic (same-origin) and opaque (cross-origin no-cors like CDNs) responses
+                if (!response || response.status !== 200 ) {
+                    // Don't cache errors (like 404) or redirects (3xx) by default
+                    // If type is 'error', it might be CORS issue or network failure
+                    if(response && response.status === 0 && response.type === 'opaque') {
+                         // OK to cache opaque responses from CDNs, but be aware you can't inspect them
+                    } else if (!response || response.type === 'error' || response.status !== 200) {
+                         console.warn(`[SW v5] Not caching invalid response for ${event.request.url}. Status: ${response?.status}, Type: ${response?.type}`);
+                         return response; // Return the potentially bad response without caching
+                    }
                 }
+
+                // Clone the response to cache it
                 const responseToCache = response.clone();
+
                 caches.open(CACHE_NAME)
                   .then(cache => {
+                    // console.log(`[SW v5] Caching new resource: ${event.request.url}`);
                     cache.put(event.request, responseToCache);
+                  })
+                  .catch(cacheErr => {
+                     console.error(`[SW v5] Failed to cache resource ${event.request.url}:`, cacheErr);
                   });
-                return response;
+
+                return response; // Return the original response to the browser
               })
               .catch(error => {
-                console.error(`[SW] Fetch failed for ${event.request.url}:`, error);
+                console.error(`[SW v5] Fetch failed for ${event.request.url}:`, error);
+                // Provide offline fallback ONLY for navigation requests
                 if (event.request.mode === 'navigate') {
+                  console.log('[SW v5] Returning offline fallback page.');
+                  // Ensure 'index.html' is definitely in LOCAL_ASSETS
                   return caches.match('index.html');
                 }
+                // For failed audio/image etc, just let the error happen
               });
           })
       );
