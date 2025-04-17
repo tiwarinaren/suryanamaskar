@@ -1,6 +1,6 @@
 # Surya Namaskar App - Sun Salutation Guide & Practice Timer
 
-![Surya Namaskar App Screenshot](link_to_your_screenshot.png) 
+![Surya Namaskar App Screenshot](Screenshot.png) 
 
 A simple, responsive web application designed to guide users through the Surya Namaskar (Sun Salutation) yoga sequence. It provides a step-by-step visual guide and a customizable timer for guided practice sessions, complete with audio cues.
 
