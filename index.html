@@ -11,7 +11,7 @@
        <meta name="mobile-web-app-capable" content="yes">
        <meta name="apple-mobile-web-app-capable" content="yes">
        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Or default, black -->
-       <meta name="apple-mobile-web-app-title" content="SuryaNamaskar">
+       <meta name="apple-mobile-web-app-title" content="SuryaApp">
        <meta name="theme-color" content="#f97316"> <!-- Orange-500 -->
        <link rel="icon" type="image/png" sizes="192x192" href="icon.png"> <!-- Standard icon -->
        <link rel="apple-touch-icon" href="icon.png"> <!-- iOS icon -->
@@ -816,50 +816,11 @@
     }
 
     // Guided Practice: Move to Next Pose
-    // Guided Practice: Move to Next Pose
     function moveToNextPose() {
         // Play transition sound BEFORE updating the index if enabled
         if (transitionSoundsEnabled) {
             playSound(transitionSound);
         }
-
-        currentPoseIndex++;
-        if (currentPoseIndex >= totalPoses) {
-            currentPoseIndex = 0; // Wrap around poses
-            currentRound++;
-            if (currentRound > totalRounds) {
-                if (voiceGuidanceEnabled) console.log("Practice Complete!");
-                alert(`Practice Complete! You finished ${totalRounds} rounds.`);
-                resetPractice();
-                return; // Stop the timer loop
-            } else {
-                 if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}`);
-            }
-        }
-
-        // Update display for the NEW pose
-        updatePoseDisplay();
-
-        // --- Optional Delay ---
-        // Add a small delay (e.g., 100ms) before playing the breathing cue
-        // This might help if transition/breathing sounds are overlapping too closely
-        const breathingPlayDelay = 100; // milliseconds
-
-        setTimeout(() => {
-            playBreathingCue(currentPoseIndex); // Play sound for new pose
-        }, breathingPlayDelay);
-        // --- End Optional Delay ---
-
-        // Original line (without delay):
-        // playBreathingCue(currentPoseIndex); // Play sound for new pose
-
-
-        // Reset the timer interval for the new pose's duration
-        clearInterval(timerInterval); // Clear old interval
-         if (isRunning) { // Start new interval only if still running
-            timerInterval = setInterval(timerTick, 1000);
-        }
-    }
 
         currentPoseIndex++;
         if (currentPoseIndex >= totalPoses) {
