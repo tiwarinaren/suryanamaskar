@@ -510,10 +510,10 @@
     </div>
 
     <!-- Hidden Audio Players -->
-<audio id="transition-sound" src="assets/soft_beep.mp3" preload="auto"></audio>
-<audio id="inhale-sound" src="assets/inhale.mp3" preload="auto"></audio>
-<audio id="exhale-sound" src="assets/exhale.mp3" preload="auto"></audio>
-<audio id="hold-sound" src="assets/hold.mp3" preload="auto"></audio>
+<!-- <audio id="transition-sound" src="assets/soft_beep.mp3" preload="auto"></audio>  -->
+<!-- <audio id="inhale-sound" src="assets/inhale.mp3" preload="auto"></audio>  -->
+<!-- <audio id="exhale-sound" src="assets/exhale.mp3" preload="auto"></audio>  -->
+<!-- <audio id="hold-sound" src="assets/hold.mp3" preload="auto"></audio>  -->
 
 <script>
     // --- Pose Data ---
@@ -583,10 +583,10 @@
     const nextBreathingCue = document.getElementById('next-breathing-cue');
 
     // --- Audio Elements --- Get references
-    const transitionSound = document.getElementById('transition-sound');
-    const inhaleSound = document.getElementById('inhale-sound');
-    const exhaleSound = document.getElementById('exhale-sound');
-    const holdSound = document.getElementById('hold-sound');
+   // const transitionSound = document.getElementById('transition-sound');
+    //const inhaleSound = document.getElementById('inhale-sound');
+    //const exhaleSound = document.getElementById('exhale-sound');
+    //const holdSound = document.getElementById('hold-sound');
 
     // --- Functions ---
 
@@ -744,27 +744,64 @@
     }
 
     // --- Audio Playback Function ---
-    function playSound(audioElement) {
-        if (audioElement) {
-            audioElement.currentTime = 0; // Rewind to start
-            audioElement.play().catch(error => console.error("Audio play failed:", error)); // Play and catch potential errors
-        }
+   // function playSound(audioElement) {
+   //     if (audioElement) {
+   //         audioElement.currentTime = 0; // Rewind to start
+   //         audioElement.play().catch(error => console.error("Audio play failed:", error)); // Play and catch potential errors
+   //     }
+   // }
+    
+function playDynamicSound(src) {
+    // Check if a valid source is provided
+    if (!src) {
+        console.warn("playDynamicSound called with invalid src");
+        return;
     }
+    try {
+        // Create a new Audio object each time
+        const audio = new Audio(src);
+
+        // Optional: Add an event listener for errors during playback/loading
+        audio.onerror = (e) => {
+            console.error(`Error playing dynamic sound ${src}:`, e);
+        };
+        // Optional: Log when playback starts
+        // audio.onplay = () => console.log(`Playing dynamic sound: ${src}`);
+
+        // Play the sound
+        audio.play().catch(error => {
+             // Catch errors specifically related to the play() promise
+             // This often happens if the user hasn't interacted yet, but
+             // should be less common here as timer start is user interaction.
+             console.error(`Error initiating play() for ${src}:`, error);
+        });
+         // No need to manage this object further, let garbage collection handle it.
+    } catch (e) {
+        // Catch errors during Audio object creation itself
+        console.error(`Error creating Audio object for ${src}:`, e);
+    }
+}
 
     // --- Play Breathing Cue ---
-    function playBreathingCue(poseIndex) {
-        if (!voiceGuidanceEnabled) return; // Only play if enabled
+function playBreathingCue(poseIndex) {
+    if (!voiceGuidanceEnabled || poseIndex < 0 || poseIndex >= poses.length) return;
 
-        const breathingCue = poses[poseIndex]?.breathing?.toLowerCase() || '';
-        if (breathingCue.includes('inhale')) {
-            playSound(inhaleSound);
-        } else if (breathingCue.includes('exhale')) {
-            playSound(exhaleSound);
-        } else if (breathingCue.includes('hold')) {
-            playSound(holdSound);
-        }
-        // No sound for 'Hold Breath'
+    const breathingCue = poses[poseIndex].breathing.toLowerCase();
+    let soundSrc = null; // Variable to hold the path
+
+    if (breathingCue.includes('inhale')) {
+        soundSrc = 'assets/inhale.mp3'; // Set the source path
+    } else if (breathingCue.includes('exhale')) {
+        soundSrc = 'assets/exhale.mp3'; // Set the source path
+    } else if (breathingCue.includes('hold')) {
+        soundSrc = 'assets/hold.mp3';   // Set the source path
     }
+
+    // If we found a matching sound source, play it dynamically
+    if (soundSrc) {
+        playDynamicSound(soundSrc);
+    }
+}
 
     // Guided Practice: Update Pose Display
     function updatePoseDisplay(isInitial = false) {
@@ -816,38 +853,40 @@
     }
 
     // Guided Practice: Move to Next Pose
-    function moveToNextPose() {
-        // Play transition sound BEFORE updating the index if enabled
-        if (transitionSoundsEnabled) {
-            playSound(transitionSound);
-        }
+function moveToNextPose() {
+    // Play transition sound dynamically BEFORE updating the index if enabled
+    if (transitionSoundsEnabled) {
+        playDynamicSound('assets/soft_beep.mp3'); // Use the new function
+    }
 
-        currentPoseIndex++;
-        if (currentPoseIndex >= totalPoses) {
-            currentPoseIndex = 0; // Wrap around poses
-            currentRound++;
-            if (currentRound > totalRounds) {
-                if (voiceGuidanceEnabled) console.log("Practice Complete!");
-                alert(`Practice Complete! You finished ${totalRounds} rounds.`);
-                resetPractice();
-                return; // Stop the timer loop
-            } else {
-                 if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}`);
-            }
-        }
-
-        // Update display for the NEW pose
-        updatePoseDisplay();
-
-        // Play breathing cue for the NEW pose AFTER display update
-        playBreathingCue(currentPoseIndex);
-
-        // Reset the timer interval for the new pose's duration
-        clearInterval(timerInterval); // Clear old interval
-         if (isRunning) { // Start new interval only if still running
-            timerInterval = setInterval(timerTick, 1000);
+    currentPoseIndex++;
+    if (currentPoseIndex >= totalPoses) {
+        currentPoseIndex = 0; // Wrap around poses
+        currentRound++;
+        if (currentRound > totalRounds) {
+            if (voiceGuidanceEnabled) console.log("Practice Complete!");
+            alert(`Practice Complete! You finished ${totalRounds} rounds.`);
+            resetPractice();
+            return; // Stop the timer loop
+        } else {
+             if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}`);
         }
     }
+
+    // Update display for the NEW pose
+    updatePoseDisplay();
+
+    // Play breathing cue for the NEW pose AFTER display update
+    // (No need for setTimeout delay with dynamic audio, but keep if you prefer)
+    playBreathingCue(currentPoseIndex);
+
+
+    // Reset the timer interval for the new pose's duration
+    clearInterval(timerInterval); // Clear old interval
+     if (isRunning) { // Start new interval only if still running
+        timerInterval = setInterval(timerTick, 1000);
+    }
+}
 
     // Guided Practice: Start Timer
     function startTimer() {
