@@ -670,7 +670,7 @@
         }
 
 
-        // --- Play Breathing Cue (calls simplified playSound) ---
+      // --- Play Breathing Cue (Add specific element logging) ---
         function playBreathingCue(poseIndex) {
             // Log the request even if voice is off, to ensure this function is called
             if (poseIndex < 0 || poseIndex >= poses.length) return;
@@ -684,17 +684,32 @@
                  return;
             }
 
+            let targetElement = null;
+            let soundName = 'unknown';
+
             if (breathingCue.includes('inhale')) {
-                playSound(inhaleSound, 'inhale');
+                targetElement = inhaleSound;
+                soundName = 'inhale';
+                console.log(`[playBreathingCue] ---> Matched INHALE. Target element ID: ${targetElement?.id}`);
             } else if (breathingCue.includes('exhale')) {
-                playSound(exhaleSound, 'exhale');
+                targetElement = exhaleSound;
+                soundName = 'exhale';
+                console.log(`[playBreathingCue] ---> Matched EXHALE. Target element ID: ${targetElement?.id}`);
             } else if (breathingCue.includes('hold')) {
-                playSound(holdSound, 'hold');
+                targetElement = holdSound;
+                soundName = 'hold';
+                console.log(`[playBreathingCue] ---> Matched HOLD. Target element ID: ${targetElement?.id}`);
             } else {
-                 console.log(`[playBreathingCue] No specific sound for cue: ${breathingCue}`);
+                 console.log(`[playBreathingCue] No specific sound match for cue: ${breathingCue}`);
+            }
+
+            // Call playSound with the determined element and name
+            if (targetElement) {
+                playSound(targetElement, soundName);
+            } else {
+                 console.log(`[playBreathingCue] No target element found to play.`);
             }
         }
-
 
         // --- PWA Service Worker Registration ---
         function registerServiceWorker() {
