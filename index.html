@@ -541,7 +541,7 @@
             poseDurations: poses.map(p => p.duration),
             totalRounds: 5,
             voiceGuidance: true,
-            transitionSounds: true
+            transitionSounds: true // Keep setting, but disable in logic below for testing
         };
 
         // --- Global State ---
@@ -552,7 +552,7 @@
         let currentRound = 1;
         let totalRounds = defaultSettings.totalRounds;
         let voiceGuidanceEnabled = defaultSettings.voiceGuidance;
-        let transitionSoundsEnabled = defaultSettings.transitionSounds;
+        let transitionSoundsEnabled = defaultSettings.transitionSounds; // Still load the setting
         const totalPoses = poses.length;
         const SETTINGS_KEY = 'suryaNamaskarSettings';
 
@@ -589,125 +589,125 @@
         const exhaleSound = document.getElementById('exhale-sound');
         const holdSound = document.getElementById('hold-sound');
 
-        // --- Audio Queue Implementation ---
-        const audioQueue = []; // Array to hold { element, name } objects
-        let isAudioPlaying = false; // Flag to prevent concurrent playback
+        // --- Simplified playSound with Intense Logging ---
+        function playSound(audioElement, soundName = 'sound') {
+            console.log(`[playSound] === Request for: ${soundName} ===`);
 
-        function requestSound(audioElement, soundName = 'sound') {
             if (!audioElement) {
-                console.warn(`[requestSound] Invalid audio element for ${soundName}. Request ignored.`);
-                return;
-            }
-             console.log(`[requestSound] Queuing: ${soundName}`);
-            audioQueue.push({ element: audioElement, name: soundName });
-            // If nothing is currently playing, start processing the queue
-            if (!isAudioPlaying) {
-                processAudioQueue();
-            }
-        }
-
-        function processAudioQueue() {
-            // console.log(`[processAudioQueue] Called. Queue length: ${audioQueue.length}, isAudioPlaying: ${isAudioPlaying}`);
-            // If queue is empty or already playing, do nothing
-            if (audioQueue.length === 0 || isAudioPlaying) {
-                // console.log(`[processAudioQueue] Exiting (empty or already playing).`);
-                isAudioPlaying = false; // Ensure flag is reset if queue is now empty
-                return;
+                console.error(`[playSound] FAIL: Element for ${soundName} not found.`);
+                return; // Exit if element doesn't exist
             }
 
-            isAudioPlaying = true; // Set flag: we are starting playback attempt
-            const nextSound = audioQueue.shift(); // Get the next sound from the queue
-            const audioElement = nextSound.element;
-            const soundName = nextSound.name;
+            console.log(`[playSound] State before play for ${soundName}: paused=${audioElement.paused}, readyState=${audioElement.readyState}, currentTime=${audioElement.currentTime}`);
 
-            console.log(`[processAudioQueue] Processing: ${soundName}`);
+             // Clear previous listeners to prevent multiple logs per event
+            audioElement.onended = null;
+            audioElement.onerror = null;
+            audioElement.onplaying = null; // Add listener for actual start
 
-            // --- Important: Define cleanup function FIRST ---
-            const cleanupAndContinue = (eventType = 'unknown') => {
-                 console.log(`[processAudioQueue] Cleanup for ${soundName} triggered by: ${eventType}`);
-                 // REMOVE event listeners BEFORE potentially starting next sound
-                audioElement.onended = null;
+             // Attach listeners BEFORE attempting play
+            audioElement.onended = () => {
+                console.log(`[playSound] SUCCESS: ${soundName} ended.`);
+                audioElement.onended = null; // Clean up listener
                 audioElement.onerror = null;
-                 // Update playing flag AFTER removing listeners
-                isAudioPlaying = false; // Playback finished or failed, clear the flag
-                // Process the next item in the queue *after* a tiny delay
-                setTimeout(processAudioQueue, 20); // Increased delay slightly
+                audioElement.onplaying = null;
             };
-
-            // Attach listeners for end and error BEFORE attempting play
-            audioElement.onended = () => cleanupAndContinue('ended');
             audioElement.onerror = (e) => {
-                console.error(`[processAudioQueue] Error playing ${soundName}:`, e);
-                cleanupAndContinue('error'); // Still need to process next queue item on error
+                console.error(`[playSound] FAIL: Error event for ${soundName}:`, e);
+                 // Log detailed error info if available
+                if (audioElement.error) {
+                     console.error(`  > audioElement.error: code=${audioElement.error.code}, message=${audioElement.error.message}`);
+                }
+                audioElement.onended = null;
+                audioElement.onerror = null; // Clean up listener
+                audioElement.onplaying = null;
             };
+             audioElement.onplaying = () => {
+                 console.log(`[playSound] SUCCESS: ${soundName} started playing.`);
+                 audioElement.onplaying = null; // Clean up listener
+             };
 
-            // Check readiness and attempt play
-            if (audioElement.readyState >= 2) { // HAVE_CURRENT_DATA or more
-                // Don't pause here if already playing, let event handlers manage state
-                if(audioElement.paused) {
-                    audioElement.currentTime = 0; // Rewind only if paused
-                } else {
-                    // If somehow it was already playing, pause and rewind before retrying
-                    audioElement.pause();
-                    audioElement.currentTime = 0;
-                    console.warn(`[processAudioQueue] ${soundName} was already playing? Paused and rewinded.`);
+            // Attempt to play
+            try {
+                // Always try pausing and rewinding first for consistency
+                audioElement.pause();
+                // Set currentTime only if it's not already effectively 0 to avoid potential issues
+                if(audioElement.currentTime > 0.1) { // Use a small threshold
+                     audioElement.currentTime = 0;
                 }
 
+
+                console.log(`[playSound] Attempting play() for ${soundName}...`);
                 const playPromise = audioElement.play();
+
                 if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        console.error(`[processAudioQueue] Play() promise rejected for ${soundName}:`, error.name, error.message);
-                        // Trigger cleanup even if play() promise fails (e.g., NotAllowedError)
-                        // Use a separate mechanism rather than relying on onerror, which might not fire for promise rejection
-                        if (!audioElement.ended) { // Avoid double cleanup if ended fires quickly
-                            cleanupAndContinue('play_catch');
-                        }
+                    playPromise.then(_ => {
+                        // This only means the command was accepted, not that it started playing yet (use onplaying event for that)
+                        console.log(`[playSound] OK: play() promise resolved for ${soundName}. Waiting for 'playing' event.`);
+                    })
+                    .catch(error => {
+                        // THIS IS OFTEN THE MOST IMPORTANT LOG FOR AUTO-PLAY ISSUES
+                        console.error(`[playSound] FAIL: play() promise rejected for ${soundName}:`, error.name, error.message);
+                        // Manually clear listeners here too, as events might not fire
+                         audioElement.onended = null;
+                         audioElement.onerror = null;
+                         audioElement.onplaying = null;
                     });
                 } else {
-                     console.warn(`[processAudioQueue] play() did not return promise for ${soundName}. Relying on events.`);
-                     // If no promise, we rely solely on onended/onerror events. If those don't fire, queue could stall.
-                     // Add a safety timeout fallback in case events don't fire
-                     setTimeout(() => {
-                         if (isAudioPlaying && audioElement === nextSound.element) { // Check if this sound is *still* supposed to be playing
-                              console.warn(`[processAudioQueue] Timeout fallback cleanup for ${soundName}`);
-                              cleanupAndContinue('timeout_fallback');
-                         }
-                     }, (audioElement.duration || 2) * 1000 + 500); // Timeout slightly longer than duration (default 2.5s)
+                     console.warn(`[playSound] WARN: audioElement.play() did not return a promise for ${soundName}. May not play.`);
+                      // Manually clear listeners here too
+                      audioElement.onended = null;
+                      audioElement.onerror = null;
+                      audioElement.onplaying = null;
                 }
-            } else {
-                console.warn(`[processAudioQueue] Cannot play ${soundName}, readyState low: ${audioElement.readyState}. Attempting load()`);
-                audioElement.load(); // Attempt to load data
-                // Still trigger cleanup to process next item after a delay, assuming load might fail or take time
-                setTimeout(() => cleanupAndContinue('low_readystate_fallback'), 500);
+            } catch (e) {
+                 console.error(`[playSound] FAIL: Exception during play attempt for ${soundName}:`, e);
+                 // Manually clear listeners here too
+                 audioElement.onended = null;
+                 audioElement.onerror = null;
+                 audioElement.onplaying = null;
             }
         }
 
 
-        // --- Play Breathing Cue (uses requestSound) ---
+        // --- Play Breathing Cue (calls simplified playSound) ---
         function playBreathingCue(poseIndex) {
-            if (!voiceGuidanceEnabled || poseIndex < 0 || poseIndex >= poses.length) return;
+            // Log the request even if voice is off, to ensure this function is called
+            if (poseIndex < 0 || poseIndex >= poses.length) return;
+
             const breathingCue = poses[poseIndex].breathing.toLowerCase();
-            console.log(`[playBreathingCue] Requesting cue for pose ${poseIndex + 1}: ${breathingCue}`);
+            console.log(`[playBreathingCue] Index: ${poseIndex + 1}, Cue: "${breathingCue}", VoiceEnabled: ${voiceGuidanceEnabled}`);
+
+            // Only proceed to play if enabled
+            if (!voiceGuidanceEnabled) {
+                 console.log(`[playBreathingCue] Voice guidance disabled, skipping play.`);
+                 return;
+            }
 
             if (breathingCue.includes('inhale')) {
-                requestSound(inhaleSound, 'inhale');
+                playSound(inhaleSound, 'inhale');
             } else if (breathingCue.includes('exhale')) {
-                requestSound(exhaleSound, 'exhale');
+                playSound(exhaleSound, 'exhale');
             } else if (breathingCue.includes('hold')) {
-                requestSound(holdSound, 'hold');
+                playSound(holdSound, 'hold');
+            } else {
+                 console.log(`[playBreathingCue] No specific sound for cue: ${breathingCue}`);
             }
         }
 
-        // PWA Service Worker Registration
+
+        // --- PWA Service Worker Registration ---
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
                     .then(registration => console.log('Service Worker registered scope:', registration.scope))
                     .catch(error => console.error('Service Worker registration failed:', error));
+            } else {
+                console.warn('Service workers are not supported in this browser.');
             }
         }
 
-        // Tab Switching
+        // --- Tab Switching ---
         function activateTab(tabId) {
             tabBtns.forEach(b => {
                 const isCurrent = b.getAttribute('data-tab') === tabId;
@@ -719,7 +719,7 @@
             tabContents.forEach(content => content.classList.toggle('active', content.id === tabId));
         }
 
-        // Timing Tab: Create/Update Sliders
+        // --- Timing Tab: Create/Update Sliders ---
         function initializeTimingSliders() {
             poseSlidersContainer.innerHTML = '';
             poses.forEach((pose, index) => {
@@ -745,7 +745,7 @@
             });
         }
 
-        // Settings Load/Save
+        // --- Settings Load/Save ---
         function loadSettings() {
             const savedSettings = localStorage.getItem(SETTINGS_KEY);
             let settings;
@@ -768,7 +768,7 @@
             });
             totalRounds = finalSettings.totalRounds || defaultSettings.totalRounds;
             voiceGuidanceEnabled = finalSettings.voiceGuidance !== undefined ? finalSettings.voiceGuidance : defaultSettings.voiceGuidance;
-            transitionSoundsEnabled = finalSettings.transitionSounds !== undefined ? finalSettings.transitionSounds : defaultSettings.transitionSounds;
+            transitionSoundsEnabled = finalSettings.transitionSounds !== undefined ? finalSettings.transitionSounds : defaultSettings.transitionSounds; // Load setting
             roundsSelect.value = totalRounds;
             voiceGuidanceCheckbox.checked = voiceGuidanceEnabled;
             transitionSoundsCheckbox.checked = transitionSoundsEnabled;
@@ -786,14 +786,14 @@
             });
             const selectedRounds = parseInt(roundsSelect.value, 10);
             const voiceChecked = voiceGuidanceCheckbox.checked;
-            const soundsChecked = transitionSoundsCheckbox.checked;
+            const soundsChecked = transitionSoundsCheckbox.checked; // Save actual setting
             const settingsToSave = { poseDurations: currentDurations, totalRounds: selectedRounds, voiceGuidance: voiceChecked, transitionSounds: soundsChecked };
             try {
                 localStorage.setItem(SETTINGS_KEY, JSON.stringify(settingsToSave));
                 console.log("Settings Saved:", settingsToSave);
-                totalRounds = selectedRounds; voiceGuidanceEnabled = voiceChecked; transitionSoundsEnabled = soundsChecked;
+                totalRounds = selectedRounds; voiceGuidanceEnabled = voiceChecked; transitionSoundsEnabled = soundsChecked; // Update global state
                 totalRoundsDisplay.textContent = totalRounds;
-                resetPractice(); // Resets state and clears queue
+                resetPractice();
                 settingsSavedMsg.textContent = 'Settings Saved!';
                 setTimeout(() => { settingsSavedMsg.textContent = ''; }, 2000);
             } catch (e) {
@@ -803,7 +803,7 @@
             }
         }
 
-        // Guided Practice: Update Pose Display
+        // --- Guided Practice: Update Pose Display ---
         function updatePoseDisplay(isInitial = false) {
             const currentPoseData = poses[currentPoseIndex];
             const nextPoseIndex = (currentPoseIndex + 1) % totalPoses;
@@ -826,7 +826,7 @@
             roundCountDisplay.textContent = currentRound;
         }
 
-        // Guided Practice: Timer Tick
+        // --- Guided Practice: Timer Tick ---
         function timerTick() {
             if (!isRunning) return;
             poseTimeRemaining--;
@@ -837,13 +837,14 @@
             if (poseTimeRemaining <= 0) moveToNextPose();
         }
 
-        // Guided Practice: Move to Next Pose (uses requestSound)
+        // --- Guided Practice: Move to Next Pose (Simplified Playback) ---
         function moveToNextPose() {
-            // Request transition sound FIRST
-            if (transitionSoundsEnabled) {
-                console.log("[moveToNextPose] Requesting transition sound");
-                requestSound(transitionSound, 'transition');
+            // --- TRANSITION SOUND DISABLED FOR TESTING ---
+            if (transitionSoundsEnabled) { // Check the setting
+                 console.log("[moveToNextPose] Transition sound DISABLED for testing.");
+                 // playSound(transitionSound, 'transition'); // Keep commented out for now
             }
+            // -------------------------------------------
 
             // Increment pose and round logic
             currentPoseIndex++;
@@ -860,60 +861,42 @@
 
             updatePoseDisplay(); // Update UI for new pose
 
-            // Request breathing cue for the NEW pose AFTER display update
-            console.log("[moveToNextPose] Requesting breathing cue for index:", currentPoseIndex);
-            playBreathingCue(currentPoseIndex); // This function now uses requestSound
+            // Play breathing cue for the NEW pose AFTER display update
+            console.log("[moveToNextPose] Calling playBreathingCue for index:", currentPoseIndex);
+            playBreathingCue(currentPoseIndex);
 
             // Reset timer interval logic
             clearInterval(timerInterval);
             if (isRunning) timerInterval = setInterval(timerTick, 1000);
         }
 
-        // Guided Practice: Start Timer (unlock audio context, includes initial breathing cue request)
+        // --- Guided Practice: Start Timer ---
         function startTimer() {
-             // --- Audio Context Unlock (Safari specific) ---
-             // Attempt to "unlock" audio context on the initial user interaction
+             // --- Audio Context Unlock Attempt ---
              const unlockAudio = () => {
-                // Check if context exists and needs resuming
-                 if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+                if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
                     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    // Create a temporary context *only if needed* to check state or resume
-                    // Avoid creating multiple contexts if possible
                     const tempCtx = new AudioCtx();
                     if (tempCtx.state === 'suspended') {
-                         tempCtx.resume().then(() => {
-                             console.log("AudioContext resumed successfully on user interaction.");
-                         }).catch(e => console.error("Error resuming AudioContext:", e))
-                         .finally(() => {
-                             // Close the temporary context if it was created just for this check
-                             if (tempCtx.state !== 'closed') { tempCtx.close(); }
-                             // Remove listeners after first interaction attempt
-                             document.removeEventListener('click', unlockAudio);
-                             document.removeEventListener('touchstart', unlockAudio);
-                         });
+                         tempCtx.resume().then(() => console.log("AudioContext resumed on interaction.")).catch(e => console.error("Error resuming AudioContext:", e))
+                         .finally(() => { if (tempCtx.state !== 'closed') { tempCtx.close(); } document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio); });
                     } else {
-                        console.log(`AudioContext state: ${tempCtx.state}`);
-                        if (tempCtx.state !== 'closed') { tempCtx.close(); }
-                        document.removeEventListener('click', unlockAudio);
-                        document.removeEventListener('touchstart', unlockAudio);
+                        console.log(`AudioContext state: ${tempCtx.state}.`);
+                        if (tempCtx.state !== 'closed') { tempCtx.close(); } document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio);
                     }
-                 } else {
-                     console.warn("AudioContext not supported.");
-                     document.removeEventListener('click', unlockAudio);
-                     document.removeEventListener('touchstart', unlockAudio);
-                 }
+                 } else { console.warn("AudioContext not supported."); document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio); }
              };
-             // Add temporary listeners to try unlocking on first interaction
              document.addEventListener('click', unlockAudio, { once: true });
              document.addEventListener('touchstart', unlockAudio, { once: true });
-             // ----------------------------------------------------
+             // -------------------------------------
 
             if (!isRunning) {
-                // Start/resume logic...
                 isRunning = true;
                 startBtn.classList.add('hidden'); pauseBtn.classList.remove('hidden');
                 resetBtn.disabled = true; resetBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
                 const currentPoseDuration = poses[currentPoseIndex].duration;
+                // Set poseTimeRemaining based on whether we are resuming or starting fresh
                 if (!(poseTimeRemaining > 0 && poseTimeRemaining < currentPoseDuration)) {
                     poseTimeRemaining = currentPoseDuration;
                 }
@@ -921,52 +904,51 @@
                 const progressPercent = Math.max(0, (poseTimeRemaining / currentPoseDuration) * 100);
                 progressBar.style.width = `${progressPercent}%`;
 
-                // Request initial cue for pose 0 if starting fresh
+                // Play initial cue ONLY if starting pose 0 with full duration
                 if (currentPoseIndex === 0 && poseTimeRemaining === currentPoseDuration) {
-                     console.log(`[startTimer] Requesting initial cue for pose 0`);
-                     playBreathingCue(currentPoseIndex); // Uses requestSound
+                     console.log(`[startTimer] Calling playBreathingCue for initial pose 0`);
+                     playBreathingCue(currentPoseIndex);
                 } else if (voiceGuidanceEnabled) {
-                    console.log(`[startTimer] Resuming: ${poses[currentPoseIndex].name}`);
+                    console.log(`[startTimer] Resuming practice at: ${poses[currentPoseIndex].name}`);
                 }
-                // Start interval logic...
+
                 clearInterval(timerInterval);
                 timerInterval = setInterval(timerTick, 1000);
             }
         }
 
-        // Guided Practice: Pause Timer
+        // --- Guided Practice: Pause Timer ---
         function pauseTimer() {
             if (isRunning) {
                 isRunning = false; clearInterval(timerInterval); timerInterval = null;
-                // Clear the audio queue when paused
-                audioQueue.length = 0;
-                isAudioPlaying = false;
-                console.log("[pauseTimer] Audio queue cleared.");
-                // Stop any potentially playing sound immediately on pause
+                // Stop potentially playing sounds on pause
+                console.log("[pauseTimer] Pausing practice. Stopping sounds.");
                 [transitionSound, inhaleSound, exhaleSound, holdSound].forEach(sound => {
                     if(sound && !sound.paused) {
                         sound.pause();
-                        sound.currentTime = 0; // Optional: reset time on pause
+                        // Don't reset currentTime on pause, allow resume
                     }
                 });
-
                 startBtn.classList.remove('hidden'); pauseBtn.classList.add('hidden');
                 resetBtn.disabled = false; resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
 
-        // Guided Practice: Reset Practice
+        // --- Guided Practice: Reset Practice ---
         function resetPractice() {
-            pauseTimer(); // Ensures timer is stopped, sounds stopped, queue cleared
+            pauseTimer(); // Ensures timer is stopped, sounds paused
             currentPoseIndex = 0; currentRound = 1;
-            // Clear queue and stop sounds explicitly again just in case
-            audioQueue.length = 0;
-            isAudioPlaying = false;
-             console.log("[resetPractice] Audio queue cleared.");
+            // Explicitly stop sounds and rewind on reset
+             console.log("[resetPractice] Resetting practice. Stopping and rewinding sounds.");
             [transitionSound, inhaleSound, exhaleSound, holdSound].forEach(sound => {
-                if(sound) { sound.pause(); sound.currentTime = 0; }
+                if(sound) {
+                    sound.pause();
+                    // Only set currentTime if it's not already 0 to avoid potential issues
+                    if (sound.currentTime > 0) {
+                        sound.currentTime = 0;
+                    }
+                }
             });
-
             updatePoseDisplay(true); // Sets correct initial poseTimeRemaining
             startBtn.classList.remove('hidden'); pauseBtn.classList.add('hidden');
             resetBtn.disabled = false; resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -983,7 +965,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             registerServiceWorker();
             loadSettings();
-            resetPractice(); // Resets state and clears queue
+            resetPractice();
             activateTab('pose-guide');
         });
 
