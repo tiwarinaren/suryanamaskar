@@ -10,8 +10,8 @@
        <meta name="description" content="Guided practice and guide for Surya Namaskar (Sun Salutation).">
        <meta name="mobile-web-app-capable" content="yes">
        <meta name="apple-mobile-web-app-capable" content="yes">
-       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Or default, black -->
-       <meta name="apple-mobile-web-app-title" content="SuryaNamaskar">
+       <meta name="apple-mobile-web-app-status-bar-style" content="black"> <!-- Changed to black for seamless look -->
+       <meta name="apple-mobile-web-app-title" content="SuryaApp">
        <meta name="theme-color" content="#f97316"> <!-- Orange-500 -->
        <link rel="icon" type="image/png" sizes="192x192" href="icon.png"> <!-- Standard icon -->
        <link rel="apple-touch-icon" href="icon.png"> <!-- iOS icon -->
@@ -106,6 +106,25 @@
         /* Ensure header stays colorful in both modes */
         header.bg-gradient-to-r {
             background: linear-gradient(to right, #f97316, #facc15) !important;
+        }
+        
+        /* Header styles */
+        header.compact-header {
+            padding: 0.5rem !important;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        header.compact-header h1 {
+            font-size: 1.25rem !important;
+            margin: 0;
+        }
+        
+        /* Hide header subtitle on compact mode */
+        header.compact-header p {
+            display: none;
         }
         
         /* Tab content styles */
@@ -307,6 +326,29 @@
             background-color: var(--accent-color);
         }
         
+        /* Practice controls layout */
+        .practice-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .practice-controls button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .practice-controls .timer-container {
+            text-align: center;
+        }
+        
         /* Media queries for responsive design */
         @media (max-width: 640px) {
             .pose-image {
@@ -326,7 +368,7 @@
     
     <div class="max-w-md mx-auto shadow-lg rounded-b-xl overflow-hidden mb-10" id="app-container">
         <!-- Header -->
-        <header class="bg-gradient-to-r from-orange-400 to-yellow-400 p-4 text-center">
+        <header class="bg-gradient-to-r from-orange-400 to-yellow-400 p-4 text-center compact-header">
             <h1 class="text-2xl font-bold text-white">Surya Namaskar</h1>
             <p class="text-white opacity-90">Sun Salutation Practice</p>
         </header>
@@ -587,13 +629,23 @@
 
             <!-- Guided Practice Tab -->
             <div id="guided-practice" class="tab-content">
-                <div class="text-center mb-6">
-                    <div class="text-5xl font-bold text-orange-500 mb-2" id="timer">05</div>
-                    <div class="text-sm text-gray-500 mb-1">Time Remaining in Pose</div>
-                    <div class="text-gray-500">Round: <span id="round-count" class="font-medium">1</span>/<span id="total-rounds-display" class="font-medium">5</span></div>
-                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
-                        <div class="progress-bar bg-orange-500 h-2.5 rounded-full" style="width: 100%" id="pose-progress"></div>
+                <div class="practice-controls">
+                    <button id="play-pause-btn" class="bg-green-500 hover:bg-green-600 text-white transition duration-300">
+                        <i class="fas fa-play" id="play-pause-icon"></i>
+                    </button>
+                    
+                    <div class="timer-container">
+                        <div class="text-5xl font-bold text-orange-500 mb-2" id="timer">05</div>
+                        <div class="text-sm text-gray-500 mb-1">Time Remaining in Pose</div>
+                        <div class="text-gray-500">Round: <span id="round-count" class="font-medium">1</span>/<span id="total-rounds-display" class="font-medium">5</span></div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
+                            <div class="progress-bar bg-orange-500 h-2.5 rounded-full" style="width: 100%" id="pose-progress"></div>
+                        </div>
                     </div>
+                    
+                    <button id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white transition duration-300">
+                        <i class="fas fa-redo"></i>
+                    </button>
                 </div>
 
                 <!-- Improved Practice UI with Current Pose Prominence -->
@@ -639,18 +691,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="flex justify-center space-x-4 mt-6">
-                    <button id="start-btn" class="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-full transition duration-300 text-sm sm:text-base">
-                        <i class="fas fa-play mr-2"></i> Start
-                    </button>
-                    <button id="pause-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 px-6 rounded-full transition duration-300 hidden text-sm sm:text-base">
-                        <i class="fas fa-pause mr-2"></i> Pause
-                    </button>
-                    <button id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-full transition duration-300 text-sm sm:text-base">
-                        <i class="fas fa-redo mr-2"></i> Reset
-                    </button>
                 </div>
 
                 <div class="mt-6 bg-blue-50 p-4 rounded-lg">
@@ -818,18 +858,17 @@
     let isRunning = false;
     let currentPoseIndex = 0;
     let currentRound = 1;
-    let totalRounds = defaultSettings.totalRounds; // Initialize with default
+    let totalRounds = defaultSettings.totalRounds;
     let voiceGuidanceEnabled = defaultSettings.voiceGuidance;
     let transitionSoundsEnabled = defaultSettings.transitionSounds;
     const totalPoses = poses.length;
-    const SETTINGS_KEY = 'suryaNamaskarSettings'; // Key for localStorage
 
     // --- DOM Elements ---
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     const timerDisplay = document.getElementById('timer');
-    const startBtn = document.getElementById('start-btn');
-    const pauseBtn = document.getElementById('pause-btn');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const playPauseIcon = document.getElementById('play-pause-icon');
     const resetBtn = document.getElementById('reset-btn');
     const roundCountDisplay = document.getElementById('round-count');
     const totalRoundsDisplay = document.getElementById('total-rounds-display');
@@ -1206,18 +1245,31 @@
         }, 200); // Small delay to separate transition sound from voice guidance
     }
 
-    // Guided Practice: Start Timer
-    function startTimer() {
+    // Guided Practice: Toggle Play/Pause
+    function togglePlayPause() {
+        isRunning = !isRunning;
         if (!isRunning) {
-            isRunning = true;
-            startBtn.classList.add('hidden');
-            pauseBtn.classList.remove('hidden');
+            // Pause
+            clearInterval(timerInterval);
+            timerInterval = null;
+            playPauseBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+            playPauseBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+            playPauseIcon.classList.remove('fa-pause');
+            playPauseIcon.classList.add('fa-play');
+            resetBtn.disabled = false;
+            resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            // Play
+            playPauseBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+            playPauseBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+            playPauseIcon.classList.remove('fa-play');
+            playPauseIcon.classList.add('fa-pause');
             resetBtn.disabled = true;
             resetBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-            // *** FIX: Ensure correct duration is used when starting/resuming ***
+            // Get current pose duration
             const currentPoseDuration = poses[currentPoseIndex].duration;
-            // If resuming (poseTimeRemaining > 0 and < duration), keep it. Otherwise, set to full duration.
+            // If resuming, keep current time; otherwise, set to full duration
             if (!(poseTimeRemaining > 0 && poseTimeRemaining < currentPoseDuration)) {
                 poseTimeRemaining = currentPoseDuration;
             }
@@ -1226,44 +1278,33 @@
             const progressPercent = Math.max(0, (poseTimeRemaining / currentPoseDuration) * 100);
             progressBar.style.width = `${progressPercent}%`;
 
-            // Play breathing cue for the very FIRST pose when starting from beginning
+            // Play breathing cue for the first pose when starting
             if (currentPoseIndex === 0 && poseTimeRemaining === currentPoseDuration) {
-                 if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}: ${poses[currentPoseIndex].name} (${poses[currentPoseIndex].breathing})`);
-                 playBreathingCue(currentPoseIndex); // Play sound for first pose
+                if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}: ${poses[currentPoseIndex].name}`);
+                playBreathingCue(currentPoseIndex);
             } else if (voiceGuidanceEnabled) {
-                // Optional: Announce resuming
                 console.log(`Resuming: ${poses[currentPoseIndex].name}`);
             }
 
-
             // Start the countdown
-            clearInterval(timerInterval); // Clear any existing just in case
+            clearInterval(timerInterval);
             timerInterval = setInterval(timerTick, 1000);
         }
     }
 
-    // Guided Practice: Pause Timer
-    function pauseTimer() {
-        if (isRunning) {
-            isRunning = false;
-            clearInterval(timerInterval);
-            timerInterval = null;
-            startBtn.classList.remove('hidden');
-            pauseBtn.classList.add('hidden');
-            resetBtn.disabled = false;
-            resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-    }
-
-    // Guided Practice: Reset Practice
+    // Reset Practice
     function resetPractice() {
-        pauseTimer(); // Ensure timer is stopped
+        isRunning = false;
+        clearInterval(timerInterval);
+        timerInterval = null;
         currentPoseIndex = 0;
         currentRound = 1;
-        // updatePoseDisplay will set the correct initial poseTimeRemaining based on loaded settings
         updatePoseDisplay(true);
-        startBtn.classList.remove('hidden');
-        pauseBtn.classList.add('hidden');
+        // Reset button styles
+        playPauseBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+        playPauseBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+        playPauseIcon.classList.remove('fa-pause');
+        playPauseIcon.classList.add('fa-play');
         resetBtn.disabled = false;
         resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
     }
@@ -1382,8 +1423,8 @@
         });
     });
 
-    startBtn.addEventListener('click', startTimer);
-    pauseBtn.addEventListener('click', pauseTimer);
+    // Single play/pause button event listener
+    playPauseBtn.addEventListener('click', togglePlayPause);
     resetBtn.addEventListener('click', resetPractice);
     saveSettingsBtn.addEventListener('click', saveSettings);
     
@@ -1405,7 +1446,6 @@
             document.removeEventListener('click', audioSetup);
         }, { once: true });
     });
-
 </script>
 </body>
 </html>
