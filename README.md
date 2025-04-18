@@ -99,9 +99,5 @@ Feel free to contribute to this project by:
 - [ ] Add progress tracking and statistics
 - [ ] Implement user accounts and cloud sync (optional)
 
-## License
-
-This project is [MIT licensed](LICENSE).
-
 ---
 Made with ❤️ by [Naren Tiwari](mailto:tiwarinaren@gmail.com)
