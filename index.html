@@ -11,7 +11,7 @@
        <meta name="mobile-web-app-capable" content="yes">
        <meta name="apple-mobile-web-app-capable" content="yes">
        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Or default, black -->
-       <meta name="apple-mobile-web-app-title" content="SuryaNamaskar">
+       <meta name="apple-mobile-web-app-title" content="SuryaApp">
        <meta name="theme-color" content="#f97316"> <!-- Orange-500 -->
        <link rel="icon" type="image/png" sizes="192x192" href="icon.png"> <!-- Standard icon -->
        <link rel="apple-touch-icon" href="icon.png"> <!-- iOS icon -->
@@ -20,16 +20,95 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Dark mode variables */
+        :root {
+            --bg-primary: #f9fafb;
+            --bg-secondary: #ffffff;
+            --bg-accent: #f3f4f6;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --accent-color: #f97316;
+            --accent-hover: #ea580c;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Dark mode theme */
+        [data-theme="dark"] {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-accent: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --accent-color: #f97316;
+            --accent-hover: #fb923c;
+            --border-color: #374151;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Apply theme variables */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Apply background colors to all relevant elements */
+        .bg-white, .bg-gray-50, .bg-gray-100, 
+        .pose-card, .max-w-md, header + div,
+        .rounded-lg, .shadow, .shadow-lg {
+            background-color: var(--bg-secondary) !important;
+            transition: background-color 0.3s ease;
+            border-color: var(--border-color);
+        }
+        
+        /* Fix blue info boxes in dark mode */
+        [data-theme="dark"] .bg-blue-50 {
+            background-color: rgba(30, 58, 138, 0.3) !important; /* dark blue */
+        }
+        
+        [data-theme="dark"] .text-blue-700,
+        [data-theme="dark"] .text-blue-800 {
+            color: #93c5fd !important; /* lighter blue for dark mode */
+        }
+        
+        /* Fix text colors */
+        .text-gray-800, .text-gray-700, .text-gray-600 {
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+        
+        .text-gray-500 {
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+        
+        /* Fix borders in dark mode */
+        [data-theme="dark"] .border,
+        [data-theme="dark"] .border-b,
+        [data-theme="dark"] .border-t,
+        [data-theme="dark"] .border-l,
+        [data-theme="dark"] .border-r {
+            border-color: var(--border-color);
+        }
+        
+        /* Ensure header stays colorful in both modes */
+        header.bg-gradient-to-r {
+            background: linear-gradient(to right, #f97316, #facc15) !important;
+        }
+        
+        /* Tab content styles */
         .tab-content {
             display: none;
         }
         .tab-content.active {
             display: block;
         }
+        
+        /* Pose image styles - INCREASED HEIGHT for mobile */
         .pose-image {
             transition: transform 0.3s ease;
-            /* --- INCREASED HEIGHT --- */
-            max-height: 220px; /* Increased from 150px */
+            max-height: 280px; /* Increased from 220px for better mobile viewing */
             height: auto; /* Allow natural aspect ratio */
             object-fit: cover;
             width: 100%;
@@ -38,18 +117,24 @@
         .pose-image:hover {
             transform: scale(1.05);
         }
+        
+        /* Progress bar */
         .progress-bar {
             height: 6px;
             transition: width 0.5s linear;
         }
+        
+        /* Pose cards */
         .current-pose-card {
             transform: scale(1.02);
             box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.2), 0 4px 6px -2px rgba(249, 115, 22, 0.1); /* Orange glow */
-            border: 1px solid #f97316; /* Orange border */
+            border: 1px solid var(--accent-color);
         }
         .next-pose-card {
             opacity: 0.8;
         }
+        
+        /* Video container */
         #videoContainer {
             position: relative;
             padding-bottom: 56.25%; /* 16:9 aspect ratio */
@@ -63,13 +148,14 @@
             width: 100%;
             height: 100%;
         }
-         /* Style range inputs */
+        
+        /* Range input styling */
         input[type=range] {
             height: 6px;
             cursor: pointer;
             appearance: none;
             width: 100%;
-            background: #e5e7eb; /* bg-gray-200 */
+            background: var(--border-color);
             border-radius: 9999px;
             outline: none;
         }
@@ -77,42 +163,135 @@
             appearance: none;
             width: 16px;
             height: 16px;
-            background: #f97316; /* bg-orange-500 */
+            background: var(--accent-color);
             cursor: pointer;
             border-radius: 50%;
         }
         input[type=range]::-moz-range-thumb {
             width: 16px;
             height: 16px;
-            background: #f97316; /* bg-orange-500 */
+            background: var(--accent-color);
             cursor: pointer;
             border-radius: 50%;
             border: none;
         }
-        /* --- Style for Image Containers --- */
+        
+        /* Image container styles */
         .pose-image-container {
-            /* Ensure container allows image to grow */
-            min-height: 220px; /* Match max-height of image */
-            display: flex; /* Center image if needed */
-            align-items: center; /* Center image vertically */
-            justify-content: center; /* Center image horizontally */
-            overflow: hidden; /* Hide overflow if image aspect ratio is different */
-            border-radius: 0.5rem; /* rounded-lg */
-            background-color: #f9fafb; /* bg-gray-50 or similar */
+            min-height: 280px; /* Match max-height of image - INCREASED */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            background-color: var(--bg-accent);
+        }
+        
+        /* Dark mode toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        [data-theme="dark"] .theme-toggle {
+            background-color: var(--bg-accent);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        [data-theme="dark"] .theme-toggle:hover {
+            background-color: var(--accent-color);
+        }
+        
+        /* Video link styles */
+        .video-link {
+            display: block;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: var(--bg-accent);
+            color: var(--text-primary);
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .video-link:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        /* Additional dark mode specific styles */
+        [data-theme="dark"] #app-container {
+            background-color: var(--bg-secondary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        [data-theme="dark"] .pose-card {
+            background-color: var(--bg-accent) !important;
+        }
+        
+        [data-theme="dark"] .pose-image-container {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="dark"] .tab-btn {
+            color: var(--text-secondary);
+        }
+        
+        [data-theme="dark"] .tab-btn.text-orange-600 {
+            color: var(--accent-color) !important;
+        }
+        
+        [data-theme="dark"] input[type=range] {
+            background-color: var(--bg-accent);
+        }
+        
+        [data-theme="dark"] .video-link {
+            background-color: var(--bg-accent);
+        }
+        
+        [data-theme="dark"] .video-link:hover {
+            background-color: var(--accent-color);
+        }
+        
+        /* Media queries for responsive design */
+        @media (max-width: 640px) {
+            .pose-image {
+                max-height: 250px; /* Slightly smaller on very small screens */
+            }
+            .pose-image-container {
+                min-height: 250px;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
-
-      <!-- Hidden Audio Players -->
-<audio id="transition-sound" src="assets/soft_beep.mp3" preload="auto"></audio>  
-<audio id="inhale-sound" src="assets/inhale.mp3" preload="auto"></audio>  
- <audio id="exhale-sound" src="assets/exhale.mp3" preload="auto"></audio>  
-<audio id="hold-sound" src="assets/hold.mp3" preload="auto"></audio>  
-
-
+<body class="bg-gray-50 font-sans" data-theme="light">
+    <!-- Dark Mode Toggle Button -->
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <i id="theme-icon" class="fas fa-moon"></i>
+    </button>
     
-    <div class="max-w-md mx-auto bg-white shadow-lg rounded-b-xl overflow-hidden mb-10">
+    <div class="max-w-md mx-auto shadow-lg rounded-b-xl overflow-hidden mb-10" id="app-container">
         <!-- Header -->
         <header class="bg-gradient-to-r from-orange-400 to-yellow-400 p-4 text-center">
             <h1 class="text-2xl font-bold text-white">Surya Namaskar</h1>
@@ -486,504 +665,674 @@
             <!-- Video Tab -->
             <div id="video" class="tab-content">
               
-                 <h2 class="text-xl font-bold text-gray-800 mb-4">Video Demonstration</h2>
-
-                <div id="videoContainer" class="rounded-lg overflow-hidden shadow-lg mb-4">
-                    <!-- Embed code - replace with your preferred video -->
-                    <iframe src="https://youtube.com/shorts/8XLBpKnWYww?si=Pjby9t87EGcPDD_G" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Video Demonstrations</h2>
+                
+                <div class="space-y-4">
+                    <!-- Video Link 1 -->
+                    <a href="https://youtube.com/shorts/8XLBpKnWYww?si=Pjby9t87EGcPDD_G" target="_blank" rel="noopener" class="video-link">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 mr-3">
+                                <i class="fas fa-play-circle text-2xl text-orange-500"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium mb-1">Quick Surya Namaskar Demo</h3>
+                                <p class="text-sm opacity-80">Short demonstration of all 12 poses</p>
+                                <div class="mt-1 text-xs opacity-70">
+                                    <span><i class="fas fa-clock mr-1"></i> 1 min</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <!-- Video Link 2 -->
+                    <a href="https://www.youtube.com/watch?v=8AakYeM23sI" target="_blank" rel="noopener" class="video-link">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 mr-3">
+                                <i class="fas fa-play-circle text-2xl text-orange-500"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium mb-1">Guided Surya Namaskar Practice</h3>
+                                <p class="text-sm opacity-80">Full guided session with proper breathing</p>
+                                <div class="mt-1 text-xs opacity-70">
+                                    <span><i class="fas fa-clock mr-1"></i> 10 min</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <!-- Video Link 3 -->
+                    <a href="https://www.youtube.com/watch?v=gC_L9qAHVJ8" target="_blank" rel="noopener" class="video-link">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 mr-3">
+                                <i class="fas fa-play-circle text-2xl text-orange-500"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium mb-1">Detailed Surya Namaskar Tutorial</h3>
+                                <p class="text-sm opacity-80">Learn proper form and alignment for each pose</p>
+                                <div class="mt-1 text-xs opacity-70">
+                                    <span><i class="fas fa-clock mr-1"></i> 15 min</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-
-                <div class="bg-gray-50 p-4 rounded-lg shadow">
-                    <h3 class="font-medium text-gray-700 mb-2">Surya Namaskar Full Sequence</h3>
-                    <p class="text-sm text-gray-600 mb-3">Follow along with this guided video to learn the complete 12-step Surya Namaskar sequence with proper alignment and breathing techniques.</p>
-
-                    <div class="flex flex-wrap justify-between text-xs sm:text-sm text-gray-500 gap-2">
-                        <span><i class="fas fa-clock mr-1"></i> Approx. 5 min (varies)</span>
-                        <span><i class="fas fa-chart-line mr-1"></i> All Levels</span>
-                    </div>
-                </div>
-
-                <div class="mt-4 grid grid-cols-3 gap-2">
-                  <!--  <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition duration-150">
-                        <i class="fas fa-bookmark mr-1"></i> Save
-                    </button>
-                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition duration-150">
-                        <i class="fas fa-share-alt mr-1"></i> Share
-                    </button>
-                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition duration-150">
-                        <i class="fas fa-download mr-1"></i> Download
-                    </button>  -->
+                
+                <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-medium text-blue-800 mb-2"><i class="fas fa-info-circle mr-2"></i>Video Tips</h3>
+                    <ul class="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                        <li>Click any link to open the video in your browser</li>
+                        <li>Videos will open in a new tab</li>
+                        <li>Choose the video that matches your experience level</li>
+                        <li>Practice along with the guided videos for best results</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
-  
-   <script>
-        // --- Pose Data ---
-        const poses = [
-            { name: "Pranamasana", image: "assets/Surya-Namaskar-step-1.jpg", instruction: "Stand erect, feet together. Join palms at chest center.", duration: 5, breathing: "Exhale / Normal" },
-            { name: "Hasta Uttanasana", image: "assets/Surya-Namaskar-step-2.jpg", instruction: "Inhale, raise arms, arch back gently.", duration: 5, breathing: "Inhale" },
-            { name: "Hasta Padasana", image: "assets/Surya-Namaskar-step-3.jpg", instruction: "Exhale, bend forward from hips, hands to feet.", duration: 5, breathing: "Exhale" },
-            { name: "Ashwa Sanchalanasana", image: "assets/Surya-Namaskar-step-4.jpg", instruction: "Inhale, step right leg back, knee down, look up.", duration: 5, breathing: "Inhale" },
-            { name: "Parvatasana", image: "assets/Surya-Namaskar-step-5.jpg", instruction: "Exhale, step left leg back, lift hips (inverted V).", duration: 5, breathing: "Exhale" },
-            { name: "Ashtanga Namaskara", image: "assets/Surya-Namaskar-step-6.jpg", instruction: "Hold breath, lower knees, chest, chin.", duration: 5, breathing: "Hold Breath" },
-            { name: "Bhujangasana", image: "assets/Surya-Namaskar-step-7.jpg", instruction: "Inhale, slide forward, lift chest (cobra).", duration: 5, breathing: "Inhale" },
-            { name: "Parvatasana", image: "assets/Surya-Namaskar-step-5.jpg", instruction: "Exhale, lift hips back to inverted V.", duration: 5, breathing: "Exhale" },
-            { name: "Ashwa Sanchalanasana", image: "assets/Surya-Namaskar-step-9.jpg", instruction: "Inhale, step right foot forward, left knee down.", duration: 5, breathing: "Inhale" },
-            { name: "Hasta Padasana", image: "assets/Surya-Namaskar-step-3.jpg", instruction: "Exhale, step left foot forward, bend forward.", duration: 5, breathing: "Exhale" },
-            { name: "Hasta Uttanasana", image: "assets/Surya-Namaskar-step-2.jpg", instruction: "Inhale, raise arms, arch back.", duration: 5, breathing: "Inhale" },
-            { name: "Pranamasana", image: "assets/Surya-Namaskar-step-1.jpg", instruction: "Exhale, return to prayer pose.", duration: 5, breathing: "Exhale" },
+    <!-- Hidden Audio Players with iOS Compatibility -->
+<audio id="transition-sound" src="assets/soft_beep.mp3" preload="auto" playsinline></audio>
+<audio id="inhale-sound" src="assets/inhale.mp3" preload="auto" playsinline></audio>
+<audio id="exhale-sound" src="assets/exhale.mp3" preload="auto" playsinline></audio>
+<audio id="hold-sound" src="assets/hold.mp3" preload="auto" playsinline></audio>
+
+<script>
+    // --- Pose Data ---
+    const poses = [
+        { name: "Pranamasana", image: "assets/Surya-Namaskar-step-1.jpg", instruction: "Stand erect, feet together. Join palms at chest center.", duration: 5, breathing: "Exhale / Normal" },
+        { name: "Hasta Uttanasana", image: "assets/Surya-Namaskar-step-2.jpg", instruction: "Inhale, raise arms, arch back gently.", duration: 5, breathing: "Inhale" },
+        { name: "Hasta Padasana", image: "assets/Surya-Namaskar-step-3.jpg", instruction: "Exhale, bend forward from hips, hands to feet.", duration: 5, breathing: "Exhale" },
+        { name: "Ashwa Sanchalanasana", image: "assets/Surya-Namaskar-step-4.jpg", instruction: "Inhale, step right leg back, knee down, look up.", duration: 5, breathing: "Inhale" },
+        { name: "Parvatasana", image: "assets/Surya-Namaskar-step-5.jpg", instruction: "Exhale, step left leg back, lift hips (inverted V).", duration: 5, breathing: "Exhale" },
+        { name: "Ashtanga Namaskara", image: "assets/Surya-Namaskar-step-6.jpg", instruction: "Hold breath, lower knees, chest, chin.", duration: 5, breathing: "Hold Breath" },
+        { name: "Bhujangasana", image: "assets/Surya-Namaskar-step-7.jpg", instruction: "Inhale, slide forward, lift chest (cobra).", duration: 5, breathing: "Inhale" },
+        { name: "Parvatasana", image: "assets/Surya-Namaskar-step-5.jpg", instruction: "Exhale, lift hips back to inverted V.", duration: 5, breathing: "Exhale" },
+        { name: "Ashwa Sanchalanasana", image: "assets/Surya-Namaskar-step-9.jpg", instruction: "Inhale, step right foot forward, left knee down.", duration: 5, breathing: "Inhale" },
+        { name: "Hasta Padasana", image: "assets/Surya-Namaskar-step-3.jpg", instruction: "Exhale, step left foot forward, bend forward.", duration: 5, breathing: "Exhale" },
+        { name: "Hasta Uttanasana", image: "assets/Surya-Namaskar-step-2.jpg", instruction: "Inhale, raise arms, arch back.", duration: 5, breathing: "Inhale" },
+        { name: "Pranamasana", image: "assets/Surya-Namaskar-step-1.jpg", instruction: "Exhale, return to prayer pose.", duration: 5, breathing: "Exhale" },
+    ];
+
+    // Default Settings (will be overridden by localStorage if available)
+    // Get initial durations FROM the poses array itself
+    const defaultSettings = {
+        poseDurations: poses.map(p => p.duration),
+        totalRounds: 5,
+        voiceGuidance: true,
+        transitionSounds: true
+    };
+
+    // --- Global State ---
+    let timerInterval = null;
+    let poseTimeRemaining = 0;
+    let isRunning = false;
+    let currentPoseIndex = 0;
+    let currentRound = 1;
+    let totalRounds = defaultSettings.totalRounds; // Initialize with default
+    let voiceGuidanceEnabled = defaultSettings.voiceGuidance;
+    let transitionSoundsEnabled = defaultSettings.transitionSounds;
+    const totalPoses = poses.length;
+    const SETTINGS_KEY = 'suryaNamaskarSettings'; // Key for localStorage
+
+    // --- DOM Elements ---
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const timerDisplay = document.getElementById('timer');
+    const startBtn = document.getElementById('start-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const roundCountDisplay = document.getElementById('round-count');
+    const totalRoundsDisplay = document.getElementById('total-rounds-display');
+    const progressBar = document.getElementById('pose-progress');
+    const poseSlidersContainer = document.getElementById('pose-sliders-container');
+    const roundsSelect = document.getElementById('rounds-select');
+    const voiceGuidanceCheckbox = document.getElementById('voice-guidance');
+    const transitionSoundsCheckbox = document.getElementById('transition-sounds');
+    const saveSettingsBtn = document.getElementById('save-settings-btn');
+    const settingsSavedMsg = document.getElementById('settings-saved-msg');
+
+    // Guided Practice UI Elements
+    const currentPoseNumberDisplay = document.getElementById('current-pose-number');
+    const currentPoseNameDisplay = document.getElementById('current-pose-name');
+    const currentPoseImage = document.getElementById('current-pose-image');
+    const currentPoseInstruction = document.getElementById('current-pose-instruction');
+    const currentBreathingCue = document.getElementById('current-breathing-cue');
+    const nextPoseNumberDisplay = document.getElementById('next-pose-number');
+    const nextPoseNameDisplay = document.getElementById('next-pose-name');
+    const nextPoseImage = document.getElementById('next-pose-image');
+    const nextPoseInstruction = document.getElementById('next-pose-instruction');
+    const nextBreathingCue = document.getElementById('next-breathing-cue');
+
+    // --- Audio Elements --- Get references
+    const transitionSound = document.getElementById('transition-sound');
+    const inhaleSound = document.getElementById('inhale-sound');
+    const exhaleSound = document.getElementById('exhale-sound');
+    const holdSound = document.getElementById('hold-sound');
+
+    // --- Functions ---
+
+    // PWA Service Worker Registration
+    function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+             // Make sure the path is correct relative to your HTML file's location
+            navigator.serviceWorker.register('sw.js') // Use 'sw.js' if it's in the same directory
+                .then(registration => {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+    }
+    
+    // Preload audio files for iOS compatibility
+    function preloadAudioFiles() {
+        // Get all audio elements
+        const audioElements = [
+            transitionSound,
+            inhaleSound,
+            exhaleSound,
+            holdSound
         ];
-
-        // --- Default Settings ---
-        const defaultSettings = {
-            poseDurations: poses.map(p => p.duration),
-            totalRounds: 5,
-            voiceGuidance: true,
-            transitionSounds: true // Keep setting, but disable in logic below for testing
-        };
-
-        // --- Global State ---
-        let timerInterval = null;
-        let poseTimeRemaining = 0;
-        let isRunning = false;
-        let currentPoseIndex = 0;
-        let currentRound = 1;
-        let totalRounds = defaultSettings.totalRounds;
-        let voiceGuidanceEnabled = defaultSettings.voiceGuidance;
-        let transitionSoundsEnabled = defaultSettings.transitionSounds; // Still load the setting
-        const totalPoses = poses.length;
-        const SETTINGS_KEY = 'suryaNamaskarSettings';
-
-        // --- DOM Elements ---
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const timerDisplay = document.getElementById('timer');
-        const startBtn = document.getElementById('start-btn');
-        const pauseBtn = document.getElementById('pause-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const roundCountDisplay = document.getElementById('round-count');
-        const totalRoundsDisplay = document.getElementById('total-rounds-display');
-        const progressBar = document.getElementById('pose-progress');
-        const poseSlidersContainer = document.getElementById('pose-sliders-container');
-        const roundsSelect = document.getElementById('rounds-select');
-        const voiceGuidanceCheckbox = document.getElementById('voice-guidance');
-        const transitionSoundsCheckbox = document.getElementById('transition-sounds');
-        const saveSettingsBtn = document.getElementById('save-settings-btn');
-        const settingsSavedMsg = document.getElementById('settings-saved-msg');
-        const currentPoseNumberDisplay = document.getElementById('current-pose-number');
-        const currentPoseNameDisplay = document.getElementById('current-pose-name');
-        const currentPoseImage = document.getElementById('current-pose-image');
-        const currentPoseInstruction = document.getElementById('current-pose-instruction');
-        const currentBreathingCue = document.getElementById('current-breathing-cue');
-        const nextPoseNumberDisplay = document.getElementById('next-pose-number');
-        const nextPoseNameDisplay = document.getElementById('next-pose-name');
-        const nextPoseImage = document.getElementById('next-pose-image');
-        const nextPoseInstruction = document.getElementById('next-pose-instruction');
-        const nextBreathingCue = document.getElementById('next-breathing-cue');
-
-        // --- Audio Elements --- Get references
-        const transitionSound = document.getElementById('transition-sound');
-        const inhaleSound = document.getElementById('inhale-sound');
-        const exhaleSound = document.getElementById('exhale-sound');
-        const holdSound = document.getElementById('hold-sound');
-
-        // --- Simplified playSound with Intense Logging ---
-        function playSound(audioElement, soundName = 'sound') {
-            console.log(`[playSound] === Request for: ${soundName} ===`);
-
-            if (!audioElement) {
-                console.error(`[playSound] FAIL: Element for ${soundName} not found.`);
-                return; // Exit if element doesn't exist
-            }
-
-            console.log(`[playSound] State before play for ${soundName}: paused=${audioElement.paused}, readyState=${audioElement.readyState}, currentTime=${audioElement.currentTime}`);
-
-             // Clear previous listeners to prevent multiple logs per event
-            audioElement.onended = null;
-            audioElement.onerror = null;
-            audioElement.onplaying = null; // Add listener for actual start
-
-             // Attach listeners BEFORE attempting play
-            audioElement.onended = () => {
-                console.log(`[playSound] SUCCESS: ${soundName} ended.`);
-                audioElement.onended = null; // Clean up listener
-                audioElement.onerror = null;
-                audioElement.onplaying = null;
-            };
-            audioElement.onerror = (e) => {
-                console.error(`[playSound] FAIL: Error event for ${soundName}:`, e);
-                 // Log detailed error info if available
-                if (audioElement.error) {
-                     console.error(`  > audioElement.error: code=${audioElement.error.code}, message=${audioElement.error.message}`);
-                }
-                audioElement.onended = null;
-                audioElement.onerror = null; // Clean up listener
-                audioElement.onplaying = null;
-            };
-             audioElement.onplaying = () => {
-                 console.log(`[playSound] SUCCESS: ${soundName} started playing.`);
-                 audioElement.onplaying = null; // Clean up listener
-             };
-
-            // Attempt to play
-            try {
-                // Always try pausing and rewinding first for consistency
-                audioElement.pause();
-                // Set currentTime only if it's not already effectively 0 to avoid potential issues
-                if(audioElement.currentTime > 0.1) { // Use a small threshold
-                     audioElement.currentTime = 0;
-                }
-
-
-                console.log(`[playSound] Attempting play() for ${soundName}...`);
-                const playPromise = audioElement.play();
-
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        // This only means the command was accepted, not that it started playing yet (use onplaying event for that)
-                        console.log(`[playSound] OK: play() promise resolved for ${soundName}. Waiting for 'playing' event.`);
-                    })
-                    .catch(error => {
-                        // THIS IS OFTEN THE MOST IMPORTANT LOG FOR AUTO-PLAY ISSUES
-                        console.error(`[playSound] FAIL: play() promise rejected for ${soundName}:`, error.name, error.message);
-                        // Manually clear listeners here too, as events might not fire
-                         audioElement.onended = null;
-                         audioElement.onerror = null;
-                         audioElement.onplaying = null;
-                    });
-                } else {
-                     console.warn(`[playSound] WARN: audioElement.play() did not return a promise for ${soundName}. May not play.`);
-                      // Manually clear listeners here too
-                      audioElement.onended = null;
-                      audioElement.onerror = null;
-                      audioElement.onplaying = null;
-                }
-            } catch (e) {
-                 console.error(`[playSound] FAIL: Exception during play attempt for ${soundName}:`, e);
-                 // Manually clear listeners here too
-                 audioElement.onended = null;
-                 audioElement.onerror = null;
-                 audioElement.onplaying = null;
-            }
-        }
-
-
-      // --- Play Breathing Cue (Add specific element logging) ---
-        function playBreathingCue(poseIndex) {
-            // Log the request even if voice is off, to ensure this function is called
-            if (poseIndex < 0 || poseIndex >= poses.length) return;
-
-            const breathingCue = poses[poseIndex].breathing.toLowerCase();
-            console.log(`[playBreathingCue] Index: ${poseIndex + 1}, Cue: "${breathingCue}", VoiceEnabled: ${voiceGuidanceEnabled}`);
-
-            // Only proceed to play if enabled
-            if (!voiceGuidanceEnabled) {
-                 console.log(`[playBreathingCue] Voice guidance disabled, skipping play.`);
-                 return;
-            }
-
-            let targetElement = null;
-            let soundName = 'unknown';
-
-            if (breathingCue.includes('inhale')) {
-                targetElement = inhaleSound;
-                soundName = 'inhale';
-                console.log(`[playBreathingCue] ---> Matched INHALE. Target element ID: ${targetElement?.id}`);
-            } else if (breathingCue.includes('exhale')) {
-                targetElement = exhaleSound;
-                soundName = 'exhale';
-                console.log(`[playBreathingCue] ---> Matched EXHALE. Target element ID: ${targetElement?.id}`);
-            } else if (breathingCue.includes('hold')) {
-                targetElement = holdSound;
-                soundName = 'hold';
-                console.log(`[playBreathingCue] ---> Matched HOLD. Target element ID: ${targetElement?.id}`);
-            } else {
-                 console.log(`[playBreathingCue] No specific sound match for cue: ${breathingCue}`);
-            }
-
-            // Call playSound with the determined element and name
-            if (targetElement) {
-                playSound(targetElement, soundName);
-            } else {
-                 console.log(`[playBreathingCue] No target element found to play.`);
-            }
-        }
-
-        // --- PWA Service Worker Registration ---
-        function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => console.log('Service Worker registered scope:', registration.scope))
-                    .catch(error => console.error('Service Worker registration failed:', error));
-            } else {
-                console.warn('Service workers are not supported in this browser.');
-            }
-        }
-
-        // --- Tab Switching ---
-        function activateTab(tabId) {
-            tabBtns.forEach(b => {
-                const isCurrent = b.getAttribute('data-tab') === tabId;
-                b.classList.toggle('text-orange-600', isCurrent);
-                b.classList.toggle('border-orange-500', isCurrent);
-                b.classList.toggle('text-gray-500', !isCurrent);
-                b.classList.toggle('border-transparent', !isCurrent);
-            });
-            tabContents.forEach(content => content.classList.toggle('active', content.id === tabId));
-        }
-
-        // --- Timing Tab: Create/Update Sliders ---
-        function initializeTimingSliders() {
-            poseSlidersContainer.innerHTML = '';
-            poses.forEach((pose, index) => {
-                const sliderId = `pose${index + 1}-time`;
-                const valueId = `pose${index + 1}-value`;
-                const div = document.createElement('div');
-                div.classList.add('mb-3');
-                div.innerHTML = `
-                    <label for="${sliderId}" class="block text-sm text-gray-600 mb-1">${index + 1}. ${pose.name}</label>
-                    <input type="range" min="2" max="30" value="${pose.duration}" class="w-full" id="${sliderId}" data-index="${index}">
-                    <div class="flex justify-between text-xs text-gray-500 mt-1 px-1">
-                        <span>2s</span>
-                        <span id="${valueId}" class="font-medium text-orange-600">${pose.duration}s</span>
-                        <span>30s</span>
-                    </div>`;
-                poseSlidersContainer.appendChild(div);
-                const slider = document.getElementById(sliderId);
-                const valueDisplay = document.getElementById(valueId);
-                slider.addEventListener('input', () => {
-                    valueDisplay.textContent = `${slider.value}s`;
-                    valueDisplay.classList.add('text-orange-600');
+        
+        // Force load each audio file
+        audioElements.forEach(audio => {
+            // Create a temporary function to handle user interaction requirement on iOS
+            const loadAudio = () => {
+                // Load the audio file
+                audio.load();
+                
+                // Set volume to 0 temporarily
+                const originalVolume = audio.volume;
+                audio.volume = 0;
+                
+                // Try to play and immediately pause to "unlock" audio on iOS
+                audio.play().then(() => {
+                    // Successfully played, now pause and restore volume
+                    audio.pause();
+                    audio.currentTime = 0;
+                    audio.volume = originalVolume;
+                    console.log(`Preloaded audio: ${audio.src.split('/').pop()}`);
+                }).catch(error => {
+                    // If it fails, that's okay - we'll try again when needed
+                    console.log(`Could not preload audio: ${error.message}`);
+                    audio.volume = originalVolume;
                 });
+            };
+            
+            // Call the function
+            loadAudio();
+        });
+    }
+
+    // Tab Switching
+    function activateTab(tabId) {
+        tabBtns.forEach(b => {
+            const isCurrent = b.getAttribute('data-tab') === tabId;
+            b.classList.toggle('text-orange-600', isCurrent);
+            b.classList.toggle('border-orange-500', isCurrent);
+            b.classList.toggle('text-gray-500', !isCurrent);
+            b.classList.toggle('border-transparent', !isCurrent);
+        });
+        tabContents.forEach(content => {
+            content.classList.toggle('active', content.id === tabId);
+        });
+    }
+
+    // Timing Tab: Create/Update Sliders
+    function initializeTimingSliders() {
+        poseSlidersContainer.innerHTML = ''; // Clear existing
+        // Use the current durations stored in the poses array
+        poses.forEach((pose, index) => {
+            const sliderId = `pose${index + 1}-time`;
+            const valueId = `pose${index + 1}-value`;
+            const div = document.createElement('div');
+            div.classList.add('mb-3');
+            div.innerHTML = `
+                <label for="${sliderId}" class="block text-sm text-gray-600 mb-1">${index + 1}. ${pose.name}</label>
+                <input type="range" min="2" max="30" value="${pose.duration}" class="w-full" id="${sliderId}" data-index="${index}">
+                <div class="flex justify-between text-xs text-gray-500 mt-1 px-1">
+                    <span>2s</span>
+                    <span id="${valueId}" class="font-medium text-orange-600">${pose.duration}s</span>
+                    <span>30s</span>
+                </div>
+            `;
+            poseSlidersContainer.appendChild(div);
+
+            const slider = document.getElementById(sliderId);
+            const valueDisplay = document.getElementById(valueId);
+            slider.addEventListener('input', () => {
+                valueDisplay.textContent = `${slider.value}s`;
+                valueDisplay.classList.add('text-orange-600');
             });
-        }
+        });
+    }
 
-        // --- Settings Load/Save ---
-        function loadSettings() {
-            const savedSettings = localStorage.getItem(SETTINGS_KEY);
-            let settings;
-            if (savedSettings) {
-                try {
-                    settings = JSON.parse(savedSettings);
-                    if (!settings || !settings.poseDurations || settings.poseDurations.length !== totalPoses) {
-                        console.warn("Invalid settings format, using defaults.");
-                        settings = null; localStorage.removeItem(SETTINGS_KEY);
-                    }
-                } catch (e) {
-                    console.error("Error parsing settings, using defaults:", e);
-                    settings = null; localStorage.removeItem(SETTINGS_KEY);
-                }
-            }
-            const finalSettings = settings || { ...defaultSettings, poseDurations: poses.map(p => p.duration) };
-            poses.forEach((pose, index) => {
-                const loadedDuration = parseInt(finalSettings.poseDurations[index], 10);
-                pose.duration = Math.max(2, Math.min(30, isNaN(loadedDuration) ? 5 : loadedDuration));
-            });
-            totalRounds = finalSettings.totalRounds || defaultSettings.totalRounds;
-            voiceGuidanceEnabled = finalSettings.voiceGuidance !== undefined ? finalSettings.voiceGuidance : defaultSettings.voiceGuidance;
-            transitionSoundsEnabled = finalSettings.transitionSounds !== undefined ? finalSettings.transitionSounds : defaultSettings.transitionSounds; // Load setting
-            roundsSelect.value = totalRounds;
-            voiceGuidanceCheckbox.checked = voiceGuidanceEnabled;
-            transitionSoundsCheckbox.checked = transitionSoundsEnabled;
-            totalRoundsDisplay.textContent = totalRounds;
-            initializeTimingSliders();
-            console.log("Settings Applied:", { poseDurations: poses.map(p=>p.duration), totalRounds, voiceGuidanceEnabled, transitionSoundsEnabled });
-        }
+    // --- Settings Load/Save ---
+    function loadSettings() {
+         const savedSettings = localStorage.getItem(SETTINGS_KEY);
+         let settings;
+         let loadedDurations = null;
 
-        function saveSettings() {
-            const currentDurations = [];
-            poses.forEach((_, index) => {
-                const slider = document.getElementById(`pose${index + 1}-time`);
-                const duration = Math.max(2, Math.min(30, slider ? parseInt(slider.value, 10) : 5));
-                poses[index].duration = duration; currentDurations.push(duration);
-            });
-            const selectedRounds = parseInt(roundsSelect.value, 10);
-            const voiceChecked = voiceGuidanceCheckbox.checked;
-            const soundsChecked = transitionSoundsCheckbox.checked; // Save actual setting
-            const settingsToSave = { poseDurations: currentDurations, totalRounds: selectedRounds, voiceGuidance: voiceChecked, transitionSounds: soundsChecked };
-            try {
-                localStorage.setItem(SETTINGS_KEY, JSON.stringify(settingsToSave));
-                console.log("Settings Saved:", settingsToSave);
-                totalRounds = selectedRounds; voiceGuidanceEnabled = voiceChecked; transitionSoundsEnabled = soundsChecked; // Update global state
-                totalRoundsDisplay.textContent = totalRounds;
-                resetPractice();
-                settingsSavedMsg.textContent = 'Settings Saved!';
-                setTimeout(() => { settingsSavedMsg.textContent = ''; }, 2000);
-            } catch (e) {
-                console.error("Error saving settings:", e);
-                settingsSavedMsg.textContent = 'Error saving settings!';
-                setTimeout(() => { settingsSavedMsg.textContent = ''; }, 3000);
-            }
-        }
-
-        // --- Guided Practice: Update Pose Display ---
-        function updatePoseDisplay(isInitial = false) {
-            const currentPoseData = poses[currentPoseIndex];
-            const nextPoseIndex = (currentPoseIndex + 1) % totalPoses;
-            const nextPoseData = poses[nextPoseIndex];
-
-            currentPoseNumberDisplay.textContent = currentPoseIndex + 1;
-            currentPoseNameDisplay.textContent = currentPoseData.name;
-            currentPoseImage.src = currentPoseData.image;
-            currentPoseInstruction.textContent = currentPoseData.instruction;
-            currentBreathingCue.textContent = currentPoseData.breathing;
-            nextPoseNumberDisplay.textContent = nextPoseIndex + 1;
-            nextPoseNameDisplay.textContent = nextPoseData.name;
-            nextPoseImage.src = nextPoseData.image;
-            nextPoseInstruction.textContent = nextPoseData.instruction;
-            nextBreathingCue.textContent = nextPoseData.breathing;
-
-            poseTimeRemaining = currentPoseData.duration;
-            timerDisplay.textContent = poseTimeRemaining.toString().padStart(2, '0');
-            progressBar.style.width = '100%';
-            roundCountDisplay.textContent = currentRound;
-        }
-
-        // --- Guided Practice: Timer Tick ---
-        function timerTick() {
-            if (!isRunning) return;
-            poseTimeRemaining--;
-            timerDisplay.textContent = poseTimeRemaining.toString().padStart(2, '0');
-            const currentPoseDuration = poses[currentPoseIndex].duration;
-            const progressPercent = Math.max(0, (poseTimeRemaining / currentPoseDuration) * 100);
-            progressBar.style.width = `${progressPercent}%`;
-            if (poseTimeRemaining <= 0) moveToNextPose();
-        }
-
-        // --- Guided Practice: Move to Next Pose (Simplified Playback) ---
-        function moveToNextPose() {
-            // --- TRANSITION SOUND DISABLED FOR TESTING ---
-            if (transitionSoundsEnabled) { // Check the setting
-                 console.log("[moveToNextPose] Transition sound DISABLED for testing.");
-                 // playSound(transitionSound, 'transition'); // Keep commented out for now
-            }
-            // -------------------------------------------
-
-            // Increment pose and round logic
-            currentPoseIndex++;
-            if (currentPoseIndex >= totalPoses) {
-                currentPoseIndex = 0; currentRound++;
-                if (currentRound > totalRounds) {
-                    if (voiceGuidanceEnabled) console.log("Practice Complete!");
-                    alert(`Practice Complete! You finished ${totalRounds} rounds.`);
-                    resetPractice(); return;
+         if (savedSettings) {
+             try {
+                settings = JSON.parse(savedSettings);
+                // Validate loaded settings structure
+                if (settings && settings.poseDurations && settings.poseDurations.length === totalPoses) {
+                    loadedDurations = settings.poseDurations;
                 } else {
-                    if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}`);
+                    console.warn("Invalid settings format in localStorage, using defaults.");
+                    settings = null; // Force using defaults below
+                    localStorage.removeItem(SETTINGS_KEY);
                 }
-            }
+             } catch (e) {
+                 console.error("Error parsing settings from localStorage, using defaults:", e);
+                 settings = null;
+                 localStorage.removeItem(SETTINGS_KEY);
+             }
+         }
 
-            updatePoseDisplay(); // Update UI for new pose
+         // Use loaded settings or defaults
+         const finalSettings = settings || { ...defaultSettings, poseDurations: poses.map(p => p.duration) }; // Ensure fresh default durations if needed
 
-            // Play breathing cue for the NEW pose AFTER display update
-            console.log("[moveToNextPose] Calling playBreathingCue for index:", currentPoseIndex);
-            playBreathingCue(currentPoseIndex);
+         // Apply settings to the main 'poses' array and global vars
+         poses.forEach((pose, index) => {
+             // Validate duration: must be between 2 and 30
+             const loadedDuration = parseInt(finalSettings.poseDurations[index], 10);
+             pose.duration = Math.max(2, Math.min(30, isNaN(loadedDuration) ? 5 : loadedDuration)); // Fallback to 5 if NaN
+         });
+         totalRounds = finalSettings.totalRounds || defaultSettings.totalRounds;
+         voiceGuidanceEnabled = finalSettings.voiceGuidance !== undefined ? finalSettings.voiceGuidance : defaultSettings.voiceGuidance;
+         transitionSoundsEnabled = finalSettings.transitionSounds !== undefined ? finalSettings.transitionSounds : defaultSettings.transitionSounds;
 
-            // Reset timer interval logic
-            clearInterval(timerInterval);
-            if (isRunning) timerInterval = setInterval(timerTick, 1000);
-        }
+         // Update UI elements in Timing Tab to reflect loaded/default state
+         roundsSelect.value = totalRounds;
+         voiceGuidanceCheckbox.checked = voiceGuidanceEnabled;
+         transitionSoundsCheckbox.checked = transitionSoundsEnabled;
 
-        // --- Guided Practice: Start Timer ---
-        function startTimer() {
-             // --- Audio Context Unlock Attempt ---
-             const unlockAudio = () => {
-                if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    const tempCtx = new AudioCtx();
-                    if (tempCtx.state === 'suspended') {
-                         tempCtx.resume().then(() => console.log("AudioContext resumed on interaction.")).catch(e => console.error("Error resuming AudioContext:", e))
-                         .finally(() => { if (tempCtx.state !== 'closed') { tempCtx.close(); } document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio); });
-                    } else {
-                        console.log(`AudioContext state: ${tempCtx.state}.`);
-                        if (tempCtx.state !== 'closed') { tempCtx.close(); } document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio);
-                    }
-                 } else { console.warn("AudioContext not supported."); document.removeEventListener('click', unlockAudio); document.removeEventListener('touchstart', unlockAudio); }
-             };
-             document.addEventListener('click', unlockAudio, { once: true });
-             document.addEventListener('touchstart', unlockAudio, { once: true });
-             // -------------------------------------
+         // Update UI elements in Practice Tab
+         totalRoundsDisplay.textContent = totalRounds;
 
-            if (!isRunning) {
-                isRunning = true;
-                startBtn.classList.add('hidden'); pauseBtn.classList.remove('hidden');
-                resetBtn.disabled = true; resetBtn.classList.add('opacity-50', 'cursor-not-allowed');
+         // Re-initialize sliders AFTER updating pose durations
+         initializeTimingSliders();
 
-                const currentPoseDuration = poses[currentPoseIndex].duration;
-                // Set poseTimeRemaining based on whether we are resuming or starting fresh
-                if (!(poseTimeRemaining > 0 && poseTimeRemaining < currentPoseDuration)) {
-                    poseTimeRemaining = currentPoseDuration;
-                }
-                timerDisplay.textContent = poseTimeRemaining.toString().padStart(2, '0');
-                const progressPercent = Math.max(0, (poseTimeRemaining / currentPoseDuration) * 100);
-                progressBar.style.width = `${progressPercent}%`;
+         console.log("Settings Applied:", { poseDurations: poses.map(p=>p.duration), totalRounds, voiceGuidanceEnabled, transitionSoundsEnabled });
+    }
 
-                // Play initial cue ONLY if starting pose 0 with full duration
-                if (currentPoseIndex === 0 && poseTimeRemaining === currentPoseDuration) {
-                     console.log(`[startTimer] Calling playBreathingCue for initial pose 0`);
-                     playBreathingCue(currentPoseIndex);
-                } else if (voiceGuidanceEnabled) {
-                    console.log(`[startTimer] Resuming practice at: ${poses[currentPoseIndex].name}`);
-                }
-
-                clearInterval(timerInterval);
-                timerInterval = setInterval(timerTick, 1000);
-            }
-        }
-
-        // --- Guided Practice: Pause Timer ---
-        function pauseTimer() {
-            if (isRunning) {
-                isRunning = false; clearInterval(timerInterval); timerInterval = null;
-                // Stop potentially playing sounds on pause
-                console.log("[pauseTimer] Pausing practice. Stopping sounds.");
-                [transitionSound, inhaleSound, exhaleSound, holdSound].forEach(sound => {
-                    if(sound && !sound.paused) {
-                        sound.pause();
-                        // Don't reset currentTime on pause, allow resume
-                    }
-                });
-                startBtn.classList.remove('hidden'); pauseBtn.classList.add('hidden');
-                resetBtn.disabled = false; resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        }
-
-        // --- Guided Practice: Reset Practice ---
-        function resetPractice() {
-            pauseTimer(); // Ensures timer is stopped, sounds paused
-            currentPoseIndex = 0; currentRound = 1;
-            // Explicitly stop sounds and rewind on reset
-             console.log("[resetPractice] Resetting practice. Stopping and rewinding sounds.");
-            [transitionSound, inhaleSound, exhaleSound, holdSound].forEach(sound => {
-                if(sound) {
-                    sound.pause();
-                    // Only set currentTime if it's not already 0 to avoid potential issues
-                    if (sound.currentTime > 0) {
-                        sound.currentTime = 0;
-                    }
-                }
-            });
-            updatePoseDisplay(true); // Sets correct initial poseTimeRemaining
-            startBtn.classList.remove('hidden'); pauseBtn.classList.add('hidden');
-            resetBtn.disabled = false; resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-
-        // --- Event Listeners ---
-        tabBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.getAttribute('data-tab'))));
-        startBtn.addEventListener('click', startTimer);
-        pauseBtn.addEventListener('click', pauseTimer);
-        resetBtn.addEventListener('click', resetPractice);
-        saveSettingsBtn.addEventListener('click', saveSettings);
-
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            registerServiceWorker();
-            loadSettings();
-            resetPractice();
-            activateTab('pose-guide');
+    function saveSettings() {
+        const currentDurations = [];
+        poses.forEach((_, index) => {
+            const slider = document.getElementById(`pose${index + 1}-time`);
+            // Read directly from slider, validate, and update the main poses array
+            const duration = Math.max(2, Math.min(30, slider ? parseInt(slider.value, 10) : 5)); // Use 5 as fallback if slider not found
+            poses[index].duration = duration;
+            currentDurations.push(duration);
         });
 
-    </script>
+        const selectedRounds = parseInt(roundsSelect.value, 10);
+        const voiceChecked = voiceGuidanceCheckbox.checked;
+        const soundsChecked = transitionSoundsCheckbox.checked;
+
+        const settingsToSave = {
+            poseDurations: currentDurations, // Save the validated durations
+            totalRounds: selectedRounds,
+            voiceGuidance: voiceChecked,
+            transitionSounds: soundsChecked
+        };
+
+        try {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settingsToSave));
+            console.log("Settings Saved:", settingsToSave);
+
+            // Update global state variables used by practice tab
+            totalRounds = selectedRounds;
+            voiceGuidanceEnabled = voiceChecked;
+            transitionSoundsEnabled = soundsChecked;
+
+            // Update UI in Practice Tab immediately
+            totalRoundsDisplay.textContent = totalRounds;
+
+            resetPractice(); // Reset practice state to reflect new settings
+
+            settingsSavedMsg.textContent = 'Settings Saved!';
+            setTimeout(() => { settingsSavedMsg.textContent = ''; }, 2000);
+
+        } catch (e) {
+            console.error("Error saving settings to localStorage:", e);
+            settingsSavedMsg.textContent = 'Error saving settings!';
+            setTimeout(() => { settingsSavedMsg.textContent = ''; }, 3000);
+        }
+    }
+
+    // --- Enhanced Audio Playback Function for iOS Compatibility ---
+    function playSound(audioElement) {
+        if (!audioElement) return;
+        
+        // Reset audio element
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        
+        // Create a user interaction promise for iOS
+        const playPromise = audioElement.play();
+        
+        // Handle play() promise to catch errors properly
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    // Playback started successfully
+                    console.log(`Playing sound: ${audioElement.src.split('/').pop()}`);
+                })
+                .catch(error => {
+                    // Auto-play was prevented or other error
+                    console.error("Audio play failed:", error);
+                    
+                    // For iOS, try playing again with a slight delay
+                    setTimeout(() => {
+                        audioElement.play()
+                            .catch(retryError => console.error("Retry audio play failed:", retryError));
+                    }, 100);
+                });
+        }
+    }
+
+    // --- Play Breathing Cue ---
+    function playBreathingCue(poseIndex) {
+        if (!voiceGuidanceEnabled) return; // Only play if enabled
+
+        const breathingCue = poses[poseIndex]?.breathing?.toLowerCase() || '';
+        if (breathingCue.includes('inhale')) {
+            playSound(inhaleSound);
+        } else if (breathingCue.includes('exhale')) {
+            playSound(exhaleSound);
+        } else if (breathingCue.includes('hold')) {
+            playSound(holdSound);
+        }
+        // No sound for 'Hold Breath'
+    }
+
+    // Guided Practice: Update Pose Display
+    function updatePoseDisplay(isInitial = false) {
+        const currentPoseData = poses[currentPoseIndex];
+        const nextPoseIndex = (currentPoseIndex + 1) % totalPoses;
+        const nextPoseData = poses[nextPoseIndex];
+
+        // Current Pose
+        currentPoseNumberDisplay.textContent = currentPoseIndex + 1;
+        currentPoseNameDisplay.textContent = currentPoseData.name;
+        currentPoseImage.src = currentPoseData.image;
+        currentPoseInstruction.textContent = currentPoseData.instruction;
+        currentBreathingCue.textContent = currentPoseData.breathing;
+
+        // Next Pose
+        nextPoseNumberDisplay.textContent = nextPoseIndex + 1;
+        nextPoseNameDisplay.textContent = nextPoseData.name;
+        nextPoseImage.src = nextPoseData.image;
+        nextPoseInstruction.textContent = nextPoseData.instruction;
+        nextBreathingCue.textContent = nextPoseData.breathing;
+
+        // Update timer display and progress bar using the validated duration from the poses array
+        // *** FIX: Use the duration directly from the updated poses array ***
+        poseTimeRemaining = currentPoseData.duration;
+        timerDisplay.textContent = poseTimeRemaining.toString().padStart(2, '0');
+        progressBar.style.width = '100%';
+
+        // Update round display
+        roundCountDisplay.textContent = currentRound;
+    }
+
+    // Guided Practice: Timer Tick
+    function timerTick() {
+         if (!isRunning) return;
+
+        poseTimeRemaining--;
+        timerDisplay.textContent = poseTimeRemaining.toString().padStart(2, '0');
+
+        // Update progress bar using the correct duration from the poses array
+         // *** FIX: Use the duration directly from the updated poses array ***
+        const currentPoseDuration = poses[currentPoseIndex].duration; // Should be valid (>=2)
+        const progressPercent = Math.max(0, (poseTimeRemaining / currentPoseDuration) * 100);
+        progressBar.style.width = `${progressPercent}%`;
+
+        // Check if pose duration reached
+        if (poseTimeRemaining <= 0) {
+            moveToNextPose();
+        }
+    }
+
+    // Guided Practice: Move to Next Pose
+    function moveToNextPose() {
+        // Play transition sound BEFORE updating the index if enabled
+        if (transitionSoundsEnabled) {
+            playSound(transitionSound);
+        }
+
+        currentPoseIndex++;
+        if (currentPoseIndex >= totalPoses) {
+            currentPoseIndex = 0; // Wrap around poses
+            currentRound++;
+            if (currentRound > totalRounds) {
+                if (voiceGuidanceEnabled) console.log("Practice Complete!");
+                alert(`Practice Complete! You finished ${totalRounds} rounds.`);
+                resetPractice();
+                return; // Stop the timer loop
+            } else {
+                 if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}`);
+            }
+        }
+
+        // Update display for the NEW pose
+        updatePoseDisplay();
+
+        // Play breathing cue for the NEW pose AFTER display update
+        playBreathingCue(currentPoseIndex);
+
+        // Reset the timer interval for the new pose's duration
+        clearInterval(timerInterval); // Clear old interval
+         if (isRunning) { // Start new interval only if still running
+            timerInterval = setInterval(timerTick, 1000);
+        }
+    }
+
+    // Guided Practice: Start Timer
+    function startTimer() {
+        if (!isRunning) {
+            isRunning = true;
+            startBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            resetBtn.disabled = true;
+            resetBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // *** FIX: Ensure correct duration is used when starting/resuming ***
+            const currentPoseDuration = poses[currentPoseIndex].duration;
+            // If resuming (poseTimeRemaining > 0 and < duration), keep it. Otherwise, set to full duration.
+            if (!(poseTimeRemaining > 0 && poseTimeRemaining < currentPoseDuration)) {
+                poseTimeRemaining = currentPoseDuration;
+            }
+
+            timerDisplay.textContent = poseTimeRemaining.toString().padStart(2, '0');
+            const progressPercent = Math.max(0, (poseTimeRemaining / currentPoseDuration) * 100);
+            progressBar.style.width = `${progressPercent}%`;
+
+            // Play breathing cue for the very FIRST pose when starting from beginning
+            if (currentPoseIndex === 0 && poseTimeRemaining === currentPoseDuration) {
+                 if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}: ${poses[currentPoseIndex].name} (${poses[currentPoseIndex].breathing})`);
+                 playBreathingCue(currentPoseIndex); // Play sound for first pose
+            } else if (voiceGuidanceEnabled) {
+                // Optional: Announce resuming
+                console.log(`Resuming: ${poses[currentPoseIndex].name}`);
+            }
+
+
+            // Start the countdown
+            clearInterval(timerInterval); // Clear any existing just in case
+            timerInterval = setInterval(timerTick, 1000);
+        }
+    }
+
+    // Guided Practice: Pause Timer
+    function pauseTimer() {
+        if (isRunning) {
+            isRunning = false;
+            clearInterval(timerInterval);
+            timerInterval = null;
+            startBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            resetBtn.disabled = false;
+            resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    // Guided Practice: Reset Practice
+    function resetPractice() {
+        pauseTimer(); // Ensure timer is stopped
+        currentPoseIndex = 0;
+        currentRound = 1;
+        // updatePoseDisplay will set the correct initial poseTimeRemaining based on loaded settings
+        updatePoseDisplay(true);
+        startBtn.classList.remove('hidden');
+        pauseBtn.classList.add('hidden');
+        resetBtn.disabled = false;
+        resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+
+    // --- Enhanced Dark Mode Toggle Function ---
+    function toggleDarkMode() {
+        const body = document.body;
+        const themeIcon = document.getElementById('theme-icon');
+        const appContainer = document.getElementById('app-container');
+        const currentTheme = body.getAttribute('data-theme');
+        
+        // Apply theme to body and app container
+        if (currentTheme === 'light') {
+            // Switch to dark mode
+            body.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+            localStorage.setItem('theme', 'dark');
+            
+            // Force refresh all pose cards
+            document.querySelectorAll('.pose-card').forEach(card => {
+                card.style.backgroundColor = 'var(--bg-accent)';
+            });
+            
+            // Ensure app container has proper background
+            appContainer.style.backgroundColor = 'var(--bg-secondary)';
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (!btn.classList.contains('text-orange-600')) {
+                    btn.style.color = 'var(--text-secondary)';
+                }
+            });
+        } else {
+            // Switch to light mode
+            body.setAttribute('data-theme', 'light');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+            localStorage.setItem('theme', 'light');
+            
+            // Force refresh all pose cards
+            document.querySelectorAll('.pose-card').forEach(card => {
+                card.style.backgroundColor = 'var(--bg-secondary)';
+            });
+            
+            // Ensure app container has proper background
+            appContainer.style.backgroundColor = 'var(--bg-secondary)';
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (!btn.classList.contains('text-orange-600')) {
+                    btn.style.color = '';
+                }
+            });
+        }
+        
+        // Force redraw of all elements with transition
+        document.querySelectorAll('.pose-image-container, .video-link, .rounded-lg').forEach(el => {
+            el.style.transition = 'none';
+            el.offsetHeight; // Trigger reflow
+            el.style.transition = '';
+        });
+    }
+    
+    // --- Enhanced Load Theme Preference ---
+    function loadThemePreference() {
+        const savedTheme = localStorage.getItem('theme');
+        const themeIcon = document.getElementById('theme-icon');
+        const appContainer = document.getElementById('app-container');
+        
+        // Apply the saved theme or default to light
+        if (savedTheme === 'dark') {
+            // Apply dark theme
+            document.body.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+            
+            // Apply dark mode to specific elements
+            setTimeout(() => {
+                // Use setTimeout to ensure DOM is fully loaded
+                document.querySelectorAll('.pose-card').forEach(card => {
+                    card.style.backgroundColor = 'var(--bg-accent)';
+                });
+                
+                if (appContainer) {
+                    appContainer.style.backgroundColor = 'var(--bg-secondary)';
+                }
+                
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    if (!btn.classList.contains('text-orange-600')) {
+                        btn.style.color = 'var(--text-secondary)';
+                    }
+                });
+                
+                // Apply dark mode to blue info boxes
+                document.querySelectorAll('.bg-blue-50').forEach(box => {
+                    box.style.backgroundColor = 'rgba(30, 58, 138, 0.3)';
+                });
+                
+                document.querySelectorAll('.text-blue-700, .text-blue-800').forEach(text => {
+                    text.style.color = '#93c5fd';
+                });
+            }, 0);
+        } else {
+            // Apply light theme
+            document.body.setAttribute('data-theme', 'light');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    }
+
+    // --- Event Listeners ---
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            activateTab(btn.getAttribute('data-tab'));
+        });
+    });
+
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetPractice);
+    saveSettingsBtn.addEventListener('click', saveSettings);
+    
+    // Dark mode toggle event listener
+    document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        registerServiceWorker();
+        loadSettings(); // Load settings FIRST - this updates the poses array durations
+        loadThemePreference(); // Load theme preference
+        resetPractice(); // Set initial practice state using the loaded durations
+        activateTab('pose-guide'); // Start on the guide tab
+        
+        // Add event listeners for user interaction to preload audio on iOS
+        document.addEventListener('click', function audioSetup() {
+            preloadAudioFiles();
+            // Remove this listener after first interaction
+            document.removeEventListener('click', audioSetup);
+        }, { once: true });
+    });
+
+</script>
 </body>
 </html>
