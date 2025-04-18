@@ -92,12 +92,10 @@ Feel free to contribute to this project by:
 ## Future Enhancements
 
 - [ ] Integrate corresponding mantras for each pose
-- [ ] Add different speed presets (Beginner, Intermediate, Advanced)
 - [ ] Include brief descriptions of pose benefits and modifications
-- [ ] Add smoother visual transitions between poses
-- [ ] Support multiple languages
-- [ ] Add progress tracking and statistics
 - [ ] Implement user accounts and cloud sync (optional)
+
+
 
 ---
 Made with ❤️ by [Naren Tiwari](mailto:tiwarinaren@gmail.com)
