@@ -1,6 +1,6 @@
 # Surya Namaskar App - Sun Salutation Guide & Practice Timer
 
-(Screenshot.png) 
+![Surya Namaskar App Screenshot](Screenshot.png)
 
 A simple, responsive web application designed to guide users through the Surya Namaskar (Sun Salutation) yoga sequence. It provides a step-by-step visual guide and a customizable timer for guided practice sessions, complete with audio cues.
 
@@ -39,34 +39,6 @@ A simple, responsive web application designed to guide users through the Surya N
 *   **Font Awesome:** Icons.
 *   **Service Worker API:** For PWA features (offline caching).
 
-## Getting Started
-
-To run this application locally:
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/your-repo-name.git
-    ```
-2.  **Navigate to the directory:**
-    ```bash
-    cd your-repo-name
-    ```
-3.  **Serve the files:**
-    Since the app uses a Service Worker, you need to serve the files using a local web server. You cannot simply open the `index.html` file directly via the `file:///` protocol.
-
-    *   **Using Python (if installed):**
-        ```bash
-        # Python 3.x
-        python -m http.server
-        # Python 2.x
-        python -m SimpleHTTPServer
-        ```
-        Then open your browser to `http://localhost:8000`.
-
-    *   **Using VS Code Live Server:**
-        If you use Visual Studio Code, you can install the "Live Server" extension, right-click on `index.html`, and choose "Open with Live Server".
-
-4.  **Access the App:** Open your web browser and navigate to the local address provided by your server (e.g., `http://localhost:8000` or `http://127.0.0.1:5500`).
 
 ## Usage
 
@@ -92,31 +64,44 @@ To run this application locally:
 
 ## File Structure
 
+```
 ├── assets/
-│ ├── Surya-Namaskar-step-1.jpg # Pose images...
-│ ├── ...
-│ ├── Surya-Namaskar-step-9.jpg
-│ ├── exhale.mp3 # Audio cues...
-│ ├── hold.mp3
-│ ├── inhale.mp3
-│ └── soft_beep.mp3
-├── index.html # Main application file
-├── sw.js # Service Worker script
-├── icon.png # App icon (for PWA/favicon)
-└── README.md # This file
+│   ├── Surya-Namaskar-step-1.jpg # Pose images
+│   ├── Surya-Namaskar-step-2.jpg
+│   ├── ...
+│   ├── Surya-Namaskar-step-12.jpg
+│   ├── exhale.mp3    # Audio cues
+│   ├── hold.mp3
+│   ├── inhale.mp3
+│   └── soft_beep.mp3
+├── index.html        # Main application file
+├── sw.js            # Service Worker script
+├── icon.png         # App icon (for PWA/favicon)
+├── Screenshot.png   # App screenshot for documentation
+└── README.md        # Documentation
+```
 
 ## Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/your-username/your-repo-name/issues) if you want to contribute.
+Feel free to contribute to this project by:
+- Reporting bugs
+- Suggesting new features
+- Submitting pull requests
+- Improving documentation
 
-## Future Enhancements (Ideas)
+## Future Enhancements
 
-*   Integrate corresponding mantras for each pose.
-*   Add different speed presets (e.g., Slow, Medium, Fast) that adjust all pose timings.
-*   Include brief descriptions of pose benefits or modifications.
-*   Smoother visual transitions or animations between poses in practice mode.
-*   User accounts/progress tracking (more complex).
+- [ ] Integrate corresponding mantras for each pose
+- [ ] Add different speed presets (Beginner, Intermediate, Advanced)
+- [ ] Include brief descriptions of pose benefits and modifications
+- [ ] Add smoother visual transitions between poses
+- [ ] Support multiple languages
+- [ ] Add progress tracking and statistics
+- [ ] Implement user accounts and cloud sync (optional)
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details (Optional: Add a LICENSE file if you wish).
+This project is [MIT licensed](LICENSE).
+
+---
+Made with ❤️ by [Naren Tiwari](mailto:tiwarinaren@gmail.com)
