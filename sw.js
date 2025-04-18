@@ -1,15 +1,15 @@
 // sw.js
 
-// Increment version AGAIN
-const CACHE_NAME = 'surya-namaskar-cache-v5';
+// Increment version for new changes
+const CACHE_NAME = 'surya-namaskar-cache-v6';
 
 // --- List ALL local assets EXPLICITLY using relative paths ---
-// (Copied from v4 - this part is correct)
+// Added priority for audio files to ensure they're cached properly for iOS
 const LOCAL_ASSETS = [
   // Core files
   'index.html', // Assuming served from root, adjust if needed
   'icon.png',
-  // Audio files
+  // Audio files - prioritized for iOS compatibility
   'assets/exhale.mp3',
   'assets/hold.mp3',
   'assets/inhale.mp3',
@@ -25,19 +25,43 @@ const LOCAL_ASSETS = [
   'assets/Surya-Namaskar-step-9.jpg'  // Used for pose 9
 ];
 
-// Install event: Cache only LOCAL assets initially
+// Install event: Cache local assets with special handling for audio files
 self.addEventListener('install', (event) => {
-  console.log(`[SW v5] Installing Cache: ${CACHE_NAME}`);
+  console.log(`[SW v6] Installing Cache: ${CACHE_NAME}`);
+  
+  // Extract audio files from LOCAL_ASSETS
+  const audioAssets = LOCAL_ASSETS.filter(asset => asset.match(/\.(mp3|wav|ogg)$/i));
+  const otherAssets = LOCAL_ASSETS.filter(asset => !asset.match(/\.(mp3|wav|ogg)$/i));
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[SW v5] Caching local assets');
-        // Cache ONLY the explicitly listed local assets
-        return cache.addAll(LOCAL_ASSETS).catch(err => {
-          console.error('[SW v5] Failed to cache one or more local assets during install:', err);
-          // Optional: You might want to throw the error to prevent installation if core assets fail
-          // throw err;
-        });
+      .then(async cache => {
+        console.log('[SW v6] Caching local assets');
+        
+        // First cache non-audio assets
+        try {
+          await cache.addAll(otherAssets);
+          console.log('[SW v6] Non-audio assets cached successfully');
+        } catch (err) {
+          console.error('[SW v6] Failed to cache non-audio assets:', err);
+        }
+        
+        // Then cache audio assets individually to ensure they're properly cached
+        for (const audioAsset of audioAssets) {
+          try {
+            const response = await fetch(audioAsset, { cache: 'no-cache' });
+            if (response.ok) {
+              await cache.put(audioAsset, response);
+              console.log(`[SW v6] Audio asset cached: ${audioAsset}`);
+            } else {
+              console.error(`[SW v6] Failed to fetch audio asset: ${audioAsset}`);
+            }
+          } catch (err) {
+            console.error(`[SW v6] Error caching audio asset ${audioAsset}:`, err);
+          }
+        }
+        
+        return Promise.resolve(); // Continue with installation
       })
       .then(() => self.skipWaiting()) // Force activation
   );
@@ -45,79 +69,105 @@ self.addEventListener('install', (event) => {
 
 // Activate event: Clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log(`[SW v5] Activating Cache: ${CACHE_NAME}`);
+  console.log(`[SW v6] Activating Cache: ${CACHE_NAME}`);
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.filter(name => name !== CACHE_NAME) // Filter out the current cache
           .map(name => {
-            console.log('[SW v5] Deleting old cache:', name);
+            console.log('[SW v6] Deleting old cache:', name);
             return caches.delete(name);
           })
       );
-    }).then(() => self.clients.claim()) // Take control immediately
+    }).then(() => {
+      console.log('[SW v6] Claiming clients for immediate control');
+      return self.clients.claim(); // Take control immediately
+    })
   );
 });
 
 
-// Fetch event: Cache-first, then Network & Cache strategy for ALL requests
-// (Similar to your original v1, but install is more robust)
+// Fetch event: Network-first for audio files, Cache-first for everything else
 self.addEventListener('fetch', (event) => {
     // Only handle GET requests
     if (event.request.method !== 'GET') {
         return;
     }
 
-    event.respondWith(
-        caches.match(event.request)
-          .then(cachedResponse => {
-            // Cache hit - return response
-            if (cachedResponse) {
-                // console.log(`[SW v5] Serving from Cache: ${event.request.url}`);
-                return cachedResponse;
-            }
+    // Check if the request is for an audio file
+    const isAudioRequest = event.request.url.match(/\.(mp3|wav|ogg)$/i);
 
-            // Not in cache - Fetch from network
-            // console.log(`[SW v5] Fetching from Network: ${event.request.url}`);
-            return fetch(event.request)
-              .then(response => {
-                // Check if we received a valid response to cache
-                // Allow basic (same-origin) and opaque (cross-origin no-cors like CDNs) responses
-                if (!response || response.status !== 200 ) {
-                    // Don't cache errors (like 404) or redirects (3xx) by default
-                    // If type is 'error', it might be CORS issue or network failure
-                    if(response && response.status === 0 && response.type === 'opaque') {
-                         // OK to cache opaque responses from CDNs, but be aware you can't inspect them
-                    } else if (!response || response.type === 'error' || response.status !== 200) {
-                         console.warn(`[SW v5] Not caching invalid response for ${event.request.url}. Status: ${response?.status}, Type: ${response?.type}`);
-                         return response; // Return the potentially bad response without caching
+    // Use network-first strategy for audio files on iOS to ensure they're always fresh
+    if (isAudioRequest) {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    // Clone the response to cache it
+                    const responseToCache = response.clone();
+                    
+                    caches.open(CACHE_NAME)
+                        .then(cache => {
+                            console.log(`[SW v6] Caching audio resource: ${event.request.url}`);
+                            cache.put(event.request, responseToCache);
+                        })
+                        .catch(cacheErr => {
+                            console.error(`[SW v6] Failed to cache audio resource ${event.request.url}:`, cacheErr);
+                        });
+                    
+                    return response;
+                })
+                .catch(error => {
+                    console.log(`[SW v6] Network fetch failed for audio, using cache: ${event.request.url}`);
+                    return caches.match(event.request);
+                })
+        );
+    } else {
+        // For non-audio files, use cache-first strategy
+        event.respondWith(
+            caches.match(event.request)
+                .then(cachedResponse => {
+                    // Cache hit - return response
+                    if (cachedResponse) {
+                        return cachedResponse;
                     }
-                }
 
-                // Clone the response to cache it
-                const responseToCache = response.clone();
+                    // Not in cache - Fetch from network
+                    return fetch(event.request)
+                        .then(response => {
+                            // Check if we received a valid response to cache
+                            if (!response || response.status !== 200) {
+                                // Don't cache errors (like 404) or redirects (3xx) by default
+                                if (response && response.status === 0 && response.type === 'opaque') {
+                                    // OK to cache opaque responses from CDNs
+                                } else if (!response || response.type === 'error' || response.status !== 200) {
+                                    console.warn(`[SW v6] Not caching invalid response for ${event.request.url}. Status: ${response?.status}, Type: ${response?.type}`);
+                                    return response; // Return the potentially bad response without caching
+                                }
+                            }
 
-                caches.open(CACHE_NAME)
-                  .then(cache => {
-                    // console.log(`[SW v5] Caching new resource: ${event.request.url}`);
-                    cache.put(event.request, responseToCache);
-                  })
-                  .catch(cacheErr => {
-                     console.error(`[SW v5] Failed to cache resource ${event.request.url}:`, cacheErr);
-                  });
+                            // Clone the response to cache it
+                            const responseToCache = response.clone();
 
-                return response; // Return the original response to the browser
-              })
-              .catch(error => {
-                console.error(`[SW v5] Fetch failed for ${event.request.url}:`, error);
-                // Provide offline fallback ONLY for navigation requests
-                if (event.request.mode === 'navigate') {
-                  console.log('[SW v5] Returning offline fallback page.');
-                  // Ensure 'index.html' is definitely in LOCAL_ASSETS
-                  return caches.match('index.html');
-                }
-                // For failed audio/image etc, just let the error happen
-              });
-          })
-      );
+                            caches.open(CACHE_NAME)
+                                .then(cache => {
+                                    cache.put(event.request, responseToCache);
+                                })
+                                .catch(cacheErr => {
+                                    console.error(`[SW v6] Failed to cache resource ${event.request.url}:`, cacheErr);
+                                });
+
+                            return response; // Return the original response to the browser
+                        })
+                        .catch(error => {
+                            console.error(`[SW v6] Fetch failed for ${event.request.url}:`, error);
+                            // Provide offline fallback ONLY for navigation requests
+                            if (event.request.mode === 'navigate') {
+                                console.log('[SW v6] Returning offline fallback page.');
+                                return caches.match('index.html');
+                            }
+                            // For failed image etc, just let the error happen
+                        });
+                })
+        );
+    }
 });
