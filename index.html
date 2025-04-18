@@ -11,7 +11,7 @@
        <meta name="mobile-web-app-capable" content="yes">
        <meta name="apple-mobile-web-app-capable" content="yes">
        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- Or default, black -->
-       <meta name="apple-mobile-web-app-title" content="SuryaApp">
+       <meta name="apple-mobile-web-app-title" content="SuryaNamaskar">
        <meta name="theme-color" content="#f97316"> <!-- Orange-500 -->
        <link rel="icon" type="image/png" sizes="192x192" href="icon.png"> <!-- Standard icon -->
        <link rel="apple-touch-icon" href="icon.png"> <!-- iOS icon -->
@@ -72,7 +72,7 @@
             color: #93c5fd !important; /* lighter blue for dark mode */
         }
         
-        /* Fix text colors */
+        /* Fix text colors for better readability in dark mode */
         .text-gray-800, .text-gray-700, .text-gray-600 {
             color: var(--text-primary);
             transition: color 0.3s ease;
@@ -81,6 +81,17 @@
         .text-gray-500 {
             color: var(--text-secondary);
             transition: color 0.3s ease;
+        }
+        
+        /* Ensure dark mode has white text for better contrast */
+        [data-theme="dark"] .text-gray-800, 
+        [data-theme="dark"] .text-gray-700, 
+        [data-theme="dark"] .text-gray-600 {
+            color: #f3f4f6 !important; /* Light gray, almost white */
+        }
+        
+        [data-theme="dark"] .text-gray-500 {
+            color: #d1d5db !important; /* Lighter gray */
         }
         
         /* Fix borders in dark mode */
@@ -252,6 +263,28 @@
         
         [data-theme="dark"] .pose-image-container {
             background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Dark mode styles for practice page */
+        [data-theme="dark"] .current-pose-card {
+            background-color: rgba(249, 115, 22, 0.15) !important;
+        }
+        
+        [data-theme="dark"] .next-pose-card {
+            background-color: var(--bg-accent) !important;
+        }
+        
+        [data-theme="dark"] .bg-orange-100 {
+            background-color: rgba(249, 115, 22, 0.2) !important;
+        }
+        
+        [data-theme="dark"] #current-pose-instruction,
+        [data-theme="dark"] #next-pose-instruction {
+            color: #e5e7eb !important;
+        }
+        
+        [data-theme="dark"] #current-breathing-cue {
+            color: #fdba74 !important; /* Light orange */
         }
         
         [data-theme="dark"] .tab-btn {
@@ -563,31 +596,48 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-orange-50 p-3 rounded-lg shadow-lg current-pose-card">
-                        <h3 class="text-xs font-medium text-gray-500 mb-1">Current Pose (<span id="current-pose-number">1</span>/12)</h3>
-                        <h2 class="text-lg font-bold text-orange-600 mb-1" id="current-pose-name">Pranamasana</h2>
-                        <div class="pose-image-container mb-2"> 
-                            <img src="assets/Surya-Namaskar-step-1.jpg" alt="Current Pose" class="pose-image" id="current-pose-image">
+                <!-- Improved Practice UI with Current Pose Prominence -->
+                <div class="mb-6">
+                    <!-- Current Pose - Full Width and Larger -->
+                    <div class="bg-orange-50 p-4 rounded-lg shadow-lg current-pose-card mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-sm font-medium text-gray-600">Current Pose (<span id="current-pose-number">1</span>/12)</h3>
+                            <h2 class="text-xl font-bold text-orange-600" id="current-pose-name">Pranamasana</h2>
                         </div>
-                        <div class="mt-1 text-xs text-gray-600" id="current-pose-instruction">Stand erect...</div>
                         
-                        <div class="mt-2 text-sm text-orange-700 font-medium">
-                            <i class="fas fa-wind mr-1"></i> Breathing: <span id="current-breathing-cue">Exhale / Normal</span>
+                        <div class="pose-image-container mb-3" style="min-height: 300px;"> 
+                            <img src="assets/Surya-Namaskar-step-1.jpg" alt="Current Pose" class="pose-image" id="current-pose-image" style="max-height: 300px;">
+                        </div>
+                        
+                        <div class="bg-orange-100 p-3 rounded-lg">
+                            <div class="text-sm text-gray-700 mb-2" id="current-pose-instruction">Stand erect...</div>
+                            
+                            <div class="text-sm text-orange-700 font-medium">
+                                <i class="fas fa-wind mr-1"></i> Breathing: <span id="current-breathing-cue">Exhale / Normal</span>
+                            </div>
                         </div>
                     </div>
-
+                    
+                    <!-- Next Pose - Smaller and Below -->
                     <div class="bg-gray-100 p-3 rounded-lg shadow next-pose-card">
-                         <h3 class="text-xs font-medium text-gray-500 mb-1">Next Pose (<span id="next-pose-number">2</span>/12)</h3>
-                        <h2 class="text-lg font-bold text-gray-700 mb-1" id="next-pose-name">Hasta Uttanasana</h2>
-                        <div class="pose-image-container mb-2"> 
-                            <img src="assets/Surya-Namaskar-step-2.jpg" alt="Next Pose" class="pose-image" id="next-pose-image">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="text-xs font-medium text-gray-500">Next Pose (<span id="next-pose-number">2</span>/12)</h3>
+                            <h2 class="text-md font-bold text-gray-700" id="next-pose-name">Hasta Uttanasana</h2>
                         </div>
-                        <div class="mt-1 text-xs text-gray-600" id="next-pose-instruction">Raise both arms...</div>
-                         
-                         <div class="mt-2 text-sm text-gray-600 font-medium">
-                            <i class="fas fa-wind mr-1 opacity-70"></i> Next Breath: <span id="next-breathing-cue">Inhale</span>
-                         </div>
+                        
+                        <div class="flex items-center gap-3">
+                            <div class="w-1/3 pose-image-container" style="min-height: 100px;"> 
+                                <img src="assets/Surya-Namaskar-step-2.jpg" alt="Next Pose" class="pose-image" id="next-pose-image" style="max-height: 100px;">
+                            </div>
+                            
+                            <div class="w-2/3">
+                                <div class="text-xs text-gray-600 mb-1" id="next-pose-instruction">Raise both arms...</div>
+                                
+                                <div class="text-xs text-gray-600 font-medium">
+                                    <i class="fas fa-wind mr-1 opacity-70"></i> Next Breath: <span id="next-breathing-cue">Inhale</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1035,19 +1085,33 @@
         }
     }
 
-    // --- Play Breathing Cue ---
+    // --- Play Breathing Cue (Fixed) ---
     function playBreathingCue(poseIndex) {
         if (!voiceGuidanceEnabled) return; // Only play if enabled
-
-        const breathingCue = poses[poseIndex]?.breathing?.toLowerCase() || '';
-        if (breathingCue.includes('inhale')) {
-            playSound(inhaleSound);
-        } else if (breathingCue.includes('exhale')) {
-            playSound(exhaleSound);
-        } else if (breathingCue.includes('hold')) {
-            playSound(holdSound);
-        }
-        // No sound for 'Hold Breath'
+        
+        // Force a small delay to ensure audio context is ready
+        setTimeout(() => {
+            const breathingCue = poses[poseIndex]?.breathing?.toLowerCase() || '';
+            console.log(`Playing breathing cue for pose ${poseIndex + 1}: ${breathingCue}`);
+            
+            // Make sure audio elements are properly loaded
+            inhaleSound.load();
+            exhaleSound.load();
+            holdSound.load();
+            
+            if (breathingCue.includes('inhale')) {
+                console.log('Playing inhale sound');
+                playSound(inhaleSound);
+            } else if (breathingCue.includes('exhale')) {
+                console.log('Playing exhale sound');
+                playSound(exhaleSound);
+            } else if (breathingCue.includes('hold')) {
+                console.log('Playing hold sound');
+                playSound(holdSound);
+            } else {
+                console.log('No matching breathing cue found');
+            }
+        }, 100); // Small delay to ensure audio context is ready
     }
 
     // Guided Practice: Update Pose Display
@@ -1099,38 +1163,47 @@
         }
     }
 
-    // Guided Practice: Move to Next Pose
+    // Guided Practice: Move to Next Pose (Enhanced for consistent audio)
     function moveToNextPose() {
         // Play transition sound BEFORE updating the index if enabled
         if (transitionSoundsEnabled) {
             playSound(transitionSound);
         }
 
-        currentPoseIndex++;
-        if (currentPoseIndex >= totalPoses) {
-            currentPoseIndex = 0; // Wrap around poses
-            currentRound++;
-            if (currentRound > totalRounds) {
-                if (voiceGuidanceEnabled) console.log("Practice Complete!");
-                alert(`Practice Complete! You finished ${totalRounds} rounds.`);
-                resetPractice();
-                return; // Stop the timer loop
-            } else {
-                 if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}`);
+        // Small delay to ensure transition sound completes before voice guidance
+        setTimeout(() => {
+            currentPoseIndex++;
+            if (currentPoseIndex >= totalPoses) {
+                currentPoseIndex = 0; // Wrap around poses
+                currentRound++;
+                if (currentRound > totalRounds) {
+                    if (voiceGuidanceEnabled) console.log("Practice Complete!");
+                    alert(`Practice Complete! You finished ${totalRounds} rounds.`);
+                    resetPractice();
+                    return; // Stop the timer loop
+                } else {
+                    if (voiceGuidanceEnabled) console.log(`Starting Round ${currentRound}`);
+                }
             }
-        }
 
-        // Update display for the NEW pose
-        updatePoseDisplay();
+            // Update display for the NEW pose
+            updatePoseDisplay();
 
-        // Play breathing cue for the NEW pose AFTER display update
-        playBreathingCue(currentPoseIndex);
+            // Play breathing cue for the NEW pose AFTER display update with a slight delay
+            // This ensures the audio context has time to reset between sounds
+            setTimeout(() => {
+                if (voiceGuidanceEnabled) {
+                    console.log(`Playing breathing cue for pose ${currentPoseIndex + 1} (${poses[currentPoseIndex].name})`);
+                    playBreathingCue(currentPoseIndex);
+                }
+            }, 300);
 
-        // Reset the timer interval for the new pose's duration
-        clearInterval(timerInterval); // Clear old interval
-         if (isRunning) { // Start new interval only if still running
-            timerInterval = setInterval(timerTick, 1000);
-        }
+            // Reset the timer interval for the new pose's duration
+            clearInterval(timerInterval); // Clear old interval
+            if (isRunning) { // Start new interval only if still running
+                timerInterval = setInterval(timerTick, 1000);
+            }
+        }, 200); // Small delay to separate transition sound from voice guidance
     }
 
     // Guided Practice: Start Timer
