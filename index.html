@@ -9,8 +9,8 @@
        <meta name="application-name" content="Surya Namaskar App">
        <meta name="description" content="Guided practice and guide for Surya Namaskar (Sun Salutation).">
        <meta name="mobile-web-app-capable" content="yes">
-       <meta name="apple-mobile-web-app-capable" content="yes">
-       <meta name="apple-mobile-web-app-status-bar-style" content="black"> <!-- Changed to black for seamless look -->
+       <meta name="apple-mobile-web-app-capable"="yes">
+       <meta name="apple-mobile-web-app-status-bar-style"="black"> <!-- Changed to black for seamless look -->
        <meta name="apple-mobile-web-app-title" content="SuryaNamaskar">
        <meta name="theme-color" content="#f97316"> <!-- Orange-500 -->
        <link rel="icon" type="image/png" sizes="192x192" href="icon.png"> <!-- Standard icon -->
@@ -391,6 +391,10 @@
             </button>
             <button class="tab-btn flex-1 py-3 px-4 text-center font-medium text-gray-500" data-tab="video">
                 <i class="fas fa-video mr-1 sm:mr-2"></i><span class="hidden sm:inline">Video</span>
+            </button>
+            <!-- Stats Tab -->
+            <button class="tab-btn flex-1 py-3 px-4 text-center font-medium text-gray-500" data-tab="stats">
+                <i class="fas fa-chart-bar mr-1 sm:mr-2"></i><span class="hidden sm:inline">Stats</span>
             </button>
         </div>
 
@@ -822,6 +826,51 @@
                     </ul>
                 </div>
             </div>
+
+            <!-- Stats Tab -->
+            <div id="stats" class="tab-content">
+                <!-- Today's Stats -->
+                <div class="mb-4 p-4 rounded-xl shadow bg-gradient-to-r from-orange-200 to-yellow-100 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-500 mb-1">Today, Apr 18, 2025</div>
+                        <div class="text-lg font-bold text-orange-700" id="stat-today-rounds">0</div>
+                        <div class="text-xs text-gray-500">Rounds Completed Today</div>
+                    </div>
+                </div>
+                <!-- Overall Stats Cards (smaller) -->
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="rounded-lg shadow bg-gradient-to-br from-orange-100 to-yellow-50 p-2 flex flex-col items-center">
+                        <div class="text-2xl mb-1"><i class="fas fa-sun text-orange-400"></i></div>
+                        <div class="text-lg font-bold text-orange-600" id="stat-total-rounds">0</div>
+                        <div class="text-xs text-gray-500 mt-0.5">Total Rounds</div>
+                    </div>
+                    <div class="rounded-lg shadow bg-gradient-to-br from-orange-100 to-yellow-50 p-2 flex flex-col items-center">
+                        <div class="text-2xl mb-1"><i class="fas fa-calendar-day text-orange-400"></i></div>
+                        <div class="text-lg font-bold text-orange-600" id="stat-total-days">0</div>
+                        <div class="text-xs text-gray-500 mt-0.5">Practice Days</div>
+                    </div>
+                    <div class="rounded-lg shadow bg-gradient-to-br from-orange-100 to-yellow-50 p-2 flex flex-col items-center">
+                        <div class="text-2xl mb-1"><i class="fas fa-fire text-orange-500"></i></div>
+                        <div class="text-lg font-bold text-orange-600" id="stat-streak">0</div>
+                        <div class="text-xs text-gray-500 mt-0.5">Current Streak</div>
+                    </div>
+                    <div class="rounded-lg shadow bg-gradient-to-br from-orange-100 to-yellow-50 p-2 flex flex-col items-center">
+                        <div class="text-2xl mb-1"><i class="fas fa-trophy text-yellow-500"></i></div>
+                        <div class="text-lg font-bold text-orange-600" id="stat-best-streak">0</div>
+                        <div class="text-xs text-gray-500 mt-0.5">Best Streak</div>
+                    </div>
+                </div>
+                <div class="bg-white/80 dark:bg-gray-800/80 p-4 rounded-2xl shadow mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-check-circle text-orange-500"></i>
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">Habit Tracker</span>
+                        <button id="habit-plus-btn" class="ml-2 bg-teal-600 hover:bg-teal-700 text-white !text-white !bg-teal-600 !hover:bg-teal-700 rounded-full w-6 h-6 flex items-center justify-center text-base shadow transition border-2 border-teal-700" title="Mark today as completed"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div id="habit-grid" class="grid grid-cols-7 gap-1 mb-2"></div>
+                    <div class="text-xs text-gray-400 mt-1">Tap a day to mark/unmark as practiced.</div>
+                </div>
+                <div id="stats-motivation" class="text-center text-orange-700 font-semibold mt-4"></div>
+            </div>
         </div>
     </div>
 
@@ -1164,28 +1213,41 @@
         }, 100); // Small delay to ensure audio context is ready
     }
 
+    // --- Smoother Visual Transitions for Practice Tab ---
+    function fadeTransition(element, newSrc, callback) {
+        element.style.transition = 'opacity 0.4s';
+        element.style.opacity = 0;
+        setTimeout(() => {
+            if (newSrc) element.src = newSrc;
+            element.style.opacity = 1;
+            if (callback) setTimeout(callback, 400);
+        }, 400);
+    }
+
     // Guided Practice: Update Pose Display
     function updatePoseDisplay(isInitial = false) {
         const currentPoseData = poses[currentPoseIndex];
         const nextPoseIndex = (currentPoseIndex + 1) % totalPoses;
         const nextPoseData = poses[nextPoseIndex];
 
+        // Fade transition for current pose image
+        fadeTransition(currentPoseImage, currentPoseData.image);
+        // Fade transition for next pose image
+        fadeTransition(nextPoseImage, nextPoseData.image);
+
         // Current Pose
         currentPoseNumberDisplay.textContent = currentPoseIndex + 1;
         currentPoseNameDisplay.textContent = currentPoseData.name;
-        currentPoseImage.src = currentPoseData.image;
         currentPoseInstruction.textContent = currentPoseData.instruction;
         currentBreathingCue.textContent = currentPoseData.breathing;
 
         // Next Pose
         nextPoseNumberDisplay.textContent = nextPoseIndex + 1;
         nextPoseNameDisplay.textContent = nextPoseData.name;
-        nextPoseImage.src = nextPoseData.image;
         nextPoseInstruction.textContent = nextPoseData.instruction;
         nextBreathingCue.textContent = nextPoseData.breathing;
 
-        // Update timer display and progress bar using the validated duration from the poses array
-        // *** FIX: Use the duration directly from the updated poses array ***
+        // Update timer display and progress bar
         poseTimeRemaining = currentPoseData.duration;
         timerDisplay.textContent = poseTimeRemaining.toString().padStart(2, '0');
         progressBar.style.width = '100%';
@@ -1214,7 +1276,7 @@
     }
 
     // Guided Practice: Move to Next Pose (Enhanced for consistent audio)
-    function moveToNextPose() {
+    function moveToNextPoseWithStats() {
         // Play transition sound BEFORE updating the index if enabled
         if (transitionSoundsEnabled) {
             playSound(transitionSound);
@@ -1227,8 +1289,8 @@
                 currentPoseIndex = 0; // Wrap around poses
                 currentRound++;
                 if (currentRound > totalRounds) {
-                    if (voiceGuidanceEnabled) console.log("Practice Complete!");
                     alert(`Practice Complete! You finished ${totalRounds} rounds.`);
+                    recordPractice(totalRounds);
                     resetPractice();
                     return; // Stop the timer loop
                 } else {
@@ -1427,6 +1489,192 @@
         }
     }
 
+    // --- Speed Presets for Timing Tab ---
+    function addSpeedPresets() {
+        const container = document.createElement('div');
+        container.className = 'flex gap-2 mb-4';
+        const presets = [
+            { name: 'Beginner', values: [8,8,8,8,8,8,8,8,8,8,8,8] },
+            { name: 'Intermediate', values: [5,5,5,5,5,5,5,5,5,5,5,5] },
+            { name: 'Advanced', values: [3,3,3,3,3,3,3,3,3,3,3,3] }
+        ];
+        presets.forEach(preset => {
+            const btn = document.createElement('button');
+            btn.textContent = preset.name;
+            btn.className = 'flex-1 bg-orange-100 hover:bg-orange-200 text-orange-700 font-semibold py-2 rounded transition';
+            btn.addEventListener('click', () => {
+                poses.forEach((pose, i) => {
+                    pose.duration = preset.values[i];
+                    const slider = document.getElementById(`pose${i+1}-time`);
+                    const value = document.getElementById(`pose${i+1}-value`);
+                    if (slider && value) {
+                        slider.value = preset.values[i];
+                        value.textContent = `${preset.values[i]}s`;
+                    }
+                });
+            });
+            container.appendChild(btn);
+        });
+        poseSlidersContainer.parentNode.insertBefore(container, poseSlidersContainer);
+    }
+
+    // --- Stats & Progress Tracking ---
+    const STATS_KEY = 'suryaNamaskarStats';
+
+    function getTodayStr() {
+        const d = new Date();
+        return d.toISOString().slice(0,10); // YYYY-MM-DD
+    }
+
+    function loadStats() {
+        let stats = localStorage.getItem(STATS_KEY);
+        if (stats) {
+            try { stats = JSON.parse(stats); } catch { stats = null; }
+        }
+        if (!stats || typeof stats !== 'object') {
+            stats = { totalRounds: 0, days: {}, bestStreak: 0 };
+        }
+        return stats;
+    }
+
+    function saveStats(stats) {
+        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+    }
+
+    function updateStatsUI() {
+        const stats = loadStats();
+        // Total rounds
+        document.getElementById('stat-total-rounds').textContent = stats.totalRounds || 0;
+        // Days practiced
+        const days = Object.keys(stats.days || {});
+        document.getElementById('stat-total-days').textContent = days.length;
+        // Streaks
+        let streak = 0, best = stats.bestStreak || 0;
+        let today = new Date();
+        let d = new Date(today);
+        while (stats.days[getTodayStrFromDate(d)]) {
+            streak++;
+            d.setDate(d.getDate()-1);
+        }
+        document.getElementById('stat-streak').textContent = streak;
+        document.getElementById('stat-best-streak').textContent = best;
+        // Habit grid
+        renderHabitGrid(stats.days || {});
+    }
+
+    function getTodayStrFromDate(date) {
+        return date.toISOString().slice(0,10);
+    }
+
+    function renderHabitGrid(daysObj) {
+        const grid = document.getElementById('habit-grid');
+        grid.innerHTML = '';
+        const today = new Date();
+        let d = new Date(today);
+        d.setDate(d.getDate() - 41); // Show last 6 weeks (42 days)
+        for (let i=0; i<42; i++) {
+            const dayStr = getTodayStrFromDate(d);
+            const marked = !!daysObj[dayStr];
+            const cell = document.createElement('div');
+            cell.className = 'w-6 h-6 rounded flex items-center justify-center text-xs font-bold cursor-pointer ' + (marked ? 'bg-orange-400 text-white' : 'bg-gray-200 text-gray-400 hover:bg-orange-100');
+            cell.title = dayStr;
+            cell.textContent = d.getDate();
+            cell.addEventListener('click', () => {
+                toggleHabitDay(dayStr);
+            });
+            grid.appendChild(cell);
+            d.setDate(d.getDate()+1);
+        }
+    }
+
+    function toggleHabitDay(dayStr) {
+        const stats = loadStats();
+        if (stats.days[dayStr]) {
+            delete stats.days[dayStr];
+        } else {
+            stats.days[dayStr] = true;
+        }
+        saveStats(stats);
+        updateStatsUI();
+    }
+
+    function recordPractice(rounds) {
+        const stats = loadStats();
+        stats.totalRounds = (stats.totalRounds || 0) + rounds;
+        const today = getTodayStr();
+        stats.days[today] = true;
+        // Set today's rounds to the actual number completed from Practice page
+        if (!stats.todayRounds) stats.todayRounds = {};
+        stats.todayRounds[today] = rounds;
+        // Update streaks
+        let streak = 0;
+        let d = new Date();
+        while (stats.days[getTodayStrFromDate(d)]) {
+            streak++;
+            d.setDate(d.getDate()-1);
+        }
+        if (!stats.bestStreak || streak > stats.bestStreak) stats.bestStreak = streak;
+        saveStats(stats);
+        updateStatsUI();
+        updateTodayStatsUI();
+    }
+
+    // --- Today's Stats & Habit + Button Logic ---
+    function updateTodayStatsUI() {
+        const stats = loadStats();
+        const today = getTodayStr();
+        // Count rounds completed today (if tracked)
+        let todayRounds = stats.todayRounds || {};
+        let rounds = todayRounds[today] || 0;
+        document.getElementById('stat-today-rounds').textContent = rounds;
+        // Update + button state (disable if already marked)
+        const markBtn = document.getElementById('mark-today-btn');
+        if (markBtn) {
+            if (stats.days[today]) {
+                markBtn.disabled = true;
+                markBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                markBtn.disabled = false;
+                markBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    }
+
+    function markTodayCompleted() {
+        const stats = loadStats();
+        const today = getTodayStr();
+        // Mark today in habit only (do not increment rounds)
+        stats.days[today] = true;
+        // Do NOT increment stats.todayRounds[today] here
+        // Update streaks
+        let streak = 0;
+        let d = new Date();
+        while (stats.days[getTodayStrFromDate(d)]) {
+            streak++;
+            d.setDate(d.getDate()-1);
+        }
+        if (!stats.bestStreak || streak > stats.bestStreak) stats.bestStreak = streak;
+        saveStats(stats);
+        updateStatsUI();
+        updateTodayStatsUI();
+    }
+
+    // Add event listeners for + buttons
+    function setupTodayStatsButtons() {
+        const markBtn = document.getElementById('mark-today-btn');
+        if (markBtn) markBtn.onclick = markTodayCompleted;
+        const habitPlusBtn = document.getElementById('habit-plus-btn');
+        if (habitPlusBtn) habitPlusBtn.onclick = markTodayCompleted;
+    }
+
+    // Call updateStatsUI on tab open
+    const statsTabBtn = document.querySelector('[data-tab="stats"]');
+    statsTabBtn.addEventListener('click', () => {
+        updateStatsUI();
+        updateTodayStatsUI();
+        setupTodayStatsButtons();
+    });
+
     // --- Event Listeners ---
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1449,6 +1697,7 @@
         loadThemePreference(); // Load theme preference
         resetPractice(); // Set initial practice state using the loaded durations
         activateTab('pose-guide'); // Start on the guide tab
+        addSpeedPresets(); // Add speed presets to Timing Tab
         
         // Add event listeners for user interaction to preload audio on iOS
         document.addEventListener('click', function audioSetup() {
@@ -1457,6 +1706,9 @@
             document.removeEventListener('click', audioSetup);
         }, { once: true });
     });
+
+    // Replace moveToNextPose with moveToNextPoseWithStats
+    moveToNextPose = moveToNextPoseWithStats;
 </script>
 </body>
 </html>
