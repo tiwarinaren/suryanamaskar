@@ -219,7 +219,7 @@
         
         /* Dark mode toggle */
         .theme-toggle {
-            position: fixed;
+            position: absolute; /* Changed from fixed to absolute */
             top: 15px;
             right: 15px;
             z-index: 100;
@@ -358,17 +358,22 @@
                 min-height: 250px;
             }
         }
+
+        /* Add position relative to header to contain the absolute positioned toggle */
+        header {
+            position: relative;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans" data-theme="light">
-    <!-- Dark Mode Toggle Button -->
-    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-        <i id="theme-icon" class="fas fa-moon"></i>
-    </button>
-    
     <div class="max-w-md mx-auto shadow-lg rounded-b-xl overflow-hidden mb-10" id="app-container">
         <!-- Header -->
         <header class="bg-gradient-to-r from-orange-400 to-yellow-400 p-4 text-center compact-header">
+            <!-- Dark Mode Toggle Button -->
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                <i id="theme-icon" class="fas fa-moon"></i>
+            </button>
+            
             <h1 class="text-2xl font-bold text-white">Surya Namaskar</h1>
             <p class="text-white opacity-90">Sun Salutation Practice</p>
         </header>
@@ -862,6 +867,7 @@
     let voiceGuidanceEnabled = defaultSettings.voiceGuidance;
     let transitionSoundsEnabled = defaultSettings.transitionSounds;
     const totalPoses = poses.length;
+    const SETTINGS_KEY = 'suryaNamaskarSettings'; // Key for localStorage
 
     // --- DOM Elements ---
     const tabBtns = document.querySelectorAll('.tab-btn');
