@@ -505,8 +505,23 @@ body[data-theme='light'] #guided-practice .next-pose-card {
 
 body[data-theme='light'] #guided-practice .next-pose-card {
     opacity: 1; /* Ensure full opacity in light mode if needed */
-}
+
     color: #1f2937 !important;
+}
+
+/* Ensure inner content area of practice cards is light in light mode */
+body[data-theme='light'] #guided-practice .current-pose-card > div,
+body[data-theme='light'] #guided-practice .next-pose-card > div {
+    background-color: transparent !important; /* Make inner divs transparent so card bg shows */
+}
+
+/* Ensure text color is correct within practice cards in light mode */
+body[data-theme='light'] #guided-practice .current-pose-card p,
+body[data-theme='light'] #guided-practice .next-pose-card p {
+     color: var(--text-primary) !important; /* Use primary text color for light mode */
+}
+body[data-theme='light'] #guided-practice .current-pose-card #current-breathing-cue {
+     color: var(--accent-color) !important; /* Use accent color for breathing cue */
 }
     </style>
 </head>
