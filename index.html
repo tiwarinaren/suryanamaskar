@@ -217,6 +217,11 @@
             border: 1px solid var(--accent-color);
             background-color: var(--bg-secondary) !important;
         }
+        
+        /* Force white background for cards in light mode */
+        body[data-theme='light'] .pose-card {
+            background-color: white !important;
+        }
         .next-pose-card {
             opacity: 0.8;
         }
@@ -439,7 +444,7 @@
 <body class="bg-gray-50 font-sans" data-theme="light">
     <div class="max-w-md mx-auto shadow-lg rounded-b-xl overflow-hidden mb-10" id="app-container">
         <!-- Navigation Header -->
-        <div class="flex border-b bg-white dark:bg-gray-800 p-2 text-center relative overflow-hidden shadow-lg rounded-t-lg">
+        <div class="flex border-b bg-white dark:bg-gray-800 p-2 text-center relative overflow-hidden shadow-lg rounded-t-lg" style="background-color: white !important;">
             
             <button class="tab-btn flex-1 py-2 px-2 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="pose-guide">
                 <i class="fas fa-book-open text-lg text-gray-700 dark:text-gray-200"></i><span class="text-xs sm:text-sm">Guide</span>
