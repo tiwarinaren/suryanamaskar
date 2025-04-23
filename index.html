@@ -529,6 +529,61 @@ body[data-theme='light'] #guided-practice .current-pose-card #current-pose-instr
      color: #1f2937 !important; /* Force black/dark gray */
 }
 
+        /* Compact Practice Tab Styles */
+        #guided-practice .p-4, 
+        #guided-practice .p-3, 
+        #guided-practice .p-2 {
+            padding: 0.5rem !important; /* Reduce padding */
+        }
+        #guided-practice .mb-4, 
+        #guided-practice .mb-3, 
+        #guided-practice .mb-2 {
+            margin-bottom: 0.5rem !important; /* Reduce margin */
+        }
+        #guided-practice .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+             --tw-space-y-reverse: 0;
+             margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse))) !important; /* Reduce space-y-4 */
+             margin-bottom: calc(0.5rem * var(--tw-space-y-reverse)) !important;
+        }
+        /* Reduce padding/margin specifically on the cards */
+        #guided-practice .current-pose-card,
+        #guided-practice .next-pose-card {
+             padding: 0.5rem !important; /* Reduce card internal padding */
+             margin-bottom: 0.5rem !important; /* Reduce space below cards */
+        }
+        /* Reduce padding on inner elements if necessary */
+        #guided-practice .current-pose-card > div,
+        #guided-practice .next-pose-card > div {
+             padding: 0.25rem !important; /* Reduce padding inside card sections */
+        }
+        #guided-practice .practice-controls {
+            padding: 0.25rem !important; /* Reduce padding on controls */
+            margin-bottom: 0.5rem !important; /* Reduce margin below controls */
+        }
+
+/* Style for 'Swipe to explore' text container in light mode */
+body[data-theme='light'] #guide .bg-blue-50 {
+    background-color: #eff6ff !important; /* Tailwind blue-50 */
+    color: #1d4ed8 !important; /* Tailwind blue-700 */
+}
+
+/* Reduce padding/margin specifically on the Guide page cards */
+#guide .pose-card {
+    padding: 0.5rem !important; /* Reduce card internal padding */
+    margin-bottom: 0.5rem !important; /* Reduce space below cards */
+}
+#guide .p-4 {
+    padding: 0.5rem !important;
+}
+#guide .mb-4 {
+    margin-bottom: 0.5rem !important;
+}
+#guide .space-y-2 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse))) !important; /* Reduce space-y-2 */
+    margin-bottom: calc(0.25rem * var(--tw-space-y-reverse)) !important;
+}
+
 /* Footer styles */
 .footer {
     background-color: var(--bg-primary);
@@ -1999,6 +2054,75 @@ body[data-theme='light'] #guided-practice .current-pose-card #current-pose-instr
 
     // Replace moveToNextPose with moveToNextPoseWithStats
     moveToNextPose = moveToNextPoseWithStats;
+
+    // Swipe navigation for tabs
+    const tabContainer = document.getElementById('app-container'); // Or a more specific container if needed
+    const tabs = document.querySelectorAll('.tab-content');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let currentTabIndex = 0; // Keep track of the current tab index
+
+    // Find initial active tab index
+    tabs.forEach((tab, index) => {
+        if (tab.classList.contains('active')) {
+            currentTabIndex = index;
+        }
+    });
+
+    tabs.forEach((tab, index) => {
+        tab.addEventListener('touchstart', (e) => {
+            // Ignore swipes if practice is running to avoid conflict
+            if (document.getElementById('guided-practice').contains(e.target) && isPlaying) return;
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        tab.addEventListener('touchend', (e) => {
+            // Ignore swipes if practice is running
+            if (document.getElementById('guided-practice').contains(e.target) && isPlaying) return;
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe(); // Pass the current index implicitly via global var
+        }, { passive: true });
+    });
+
+    function handleSwipe() {
+        const swipeThreshold = 50; // Minimum pixels to swipe
+        const swipeDistance = touchEndX - touchStartX;
+
+        if (Math.abs(swipeDistance) > swipeThreshold) {
+            let nextIndex;
+            if (swipeDistance < 0) {
+                // Swipe Left - Go to Next Tab
+                nextIndex = (currentTabIndex + 1) % tabButtons.length;
+            } else {
+                // Swipe Right - Go to Previous Tab
+                nextIndex = (currentTabIndex - 1 + tabButtons.length) % tabButtons.length;
+            }
+            // Find the tab ID associated with the next index
+            const nextTabId = tabButtons[nextIndex].getAttribute('data-tab');
+            if (nextTabId) {
+                 window.switchTab(nextTabId); // Use the wrapped switchTab
+            }
+        }
+        // Reset touch points
+        touchStartX = 0;
+        touchEndX = 0;
+    }
+
+    // Wrap the original switchTab to update currentTabIndex
+    const originalSwitchTab = window.switchTab;
+    window.switchTab = function(tabId) {
+        originalSwitchTab(tabId); // Call the original function
+        // Update currentTabIndex based on the newly activated tab
+        tabButtons.forEach((btn, index) => {
+            if (btn.getAttribute('data-tab') === tabId) {
+                currentTabIndex = index;
+            }
+        });
+        // Ensure header visibility is correct after tab switch
+        checkScrollPosition();
+    };
+
 </script>
 </body>
 </html>
