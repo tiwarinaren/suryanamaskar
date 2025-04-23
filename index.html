@@ -95,10 +95,20 @@
             color: var(--text-primary);
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+
+        /* Ensure tab button text is visible in light mode */
+        body[data-theme='light'] .tab-btn {
+            color: #ffffff !important; /* White text for light mode nav */
+        }
+        body[data-theme='light'] .tab-btn i,
+        body[data-theme='light'] .tab-btn span {
+             color: #ffffff !important; /* Ensure icon and text also get the color */
+        }
         
         /* Apply background colors to all relevant elements */
+        /* NOTE: .pose-card removed from this rule to allow its gradient background */
         .bg-white, .bg-gray-50, .bg-gray-100, 
-        .pose-card, .max-w-md, header + div,
+        .max-w-md, header + div,
         .rounded-lg, .shadow, .shadow-lg {
             background-color: var(--bg-secondary) !important;
             transition: background-color 0.3s ease;
@@ -202,6 +212,7 @@
             transform: scale(1.02);
             box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.2), 0 4px 6px -2px rgba(249, 115, 22, 0.1); /* Orange glow */
             border: 1px solid var(--accent-color);
+            background-color: #fff7ed; /* Added light orange background (orange-50) for light mode */
         }
         .next-pose-card {
             opacity: 0.8;
@@ -356,6 +367,13 @@
         
         [data-theme="dark"] .tab-btn.text-orange-600 {
             color: var(--accent-color) !important;
+        }
+
+        /* Restore tab button text color in dark mode (overrides the light mode !important) */
+        [data-theme="dark"] .tab-btn,
+        [data-theme="dark"] .tab-btn i,
+        [data-theme="dark"] .tab-btn span {
+            color: var(--text-secondary) !important; /* Use secondary text color for dark mode */
         }
 
         /* Fix dropdown background in dark mode */
