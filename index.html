@@ -524,6 +524,11 @@ body[data-theme='light'] #guided-practice .current-pose-card #current-breathing-
      color: var(--accent-color) !important; /* Use accent color for breathing cue */
 }
 
+/* Ensure pose instruction text is black/dark gray in light mode */
+body[data-theme='light'] #guided-practice .current-pose-card #current-pose-instruction {
+     color: #1f2937 !important; /* Force black/dark gray */
+}
+
 /* Footer styles */
 .footer {
     background-color: var(--bg-primary);
