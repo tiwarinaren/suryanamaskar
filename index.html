@@ -523,6 +523,34 @@ body[data-theme='light'] #guided-practice .next-pose-card p {
 body[data-theme='light'] #guided-practice .current-pose-card #current-breathing-cue {
      color: var(--accent-color) !important; /* Use accent color for breathing cue */
 }
+
+/* Footer styles */
+.footer {
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem; /* Add some top padding */
+    padding-bottom: 1rem; /* Match existing pb-4 */
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Ensure footer links match theme */
+.footer a {
+    color: var(--accent-color);
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: var(--accent-hover);
+}
+
+[data-theme="dark"] .footer a {
+    color: var(--accent-hover); /* Lighter orange for dark mode links */
+}
+
+[data-theme="dark"] .footer a:hover {
+    color: var(--accent-color);
+}
     </style>
 </head>
 <body class="bg-gray-50 font-sans" data-theme="light">
@@ -1070,7 +1098,7 @@ body[data-theme='light'] #guided-practice .current-pose-card #current-breathing-
     </div>
 
     <!-- Footer -->
-    <div class="text-center text-gray-600 pb-4">
+    <div class="footer text-center"> <!-- Added footer class and removed text-gray-600 pb-4 -->
         <p>Made with <i class="fas fa-heart text-red-500"></i> by <a href="mailto:tiwarinaren@gmail.com" class="text-orange-500 hover:text-orange-600 transition duration-300">Naren Tiwari</a></p>
     </div>
 
