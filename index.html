@@ -494,6 +494,20 @@ body[data-theme='light'] .pose-card .text-gray-600,
 body[data-theme='light'] .pose-card .text-gray-500 {
     color: #1f2937 !important;
 }
+
+/* Ensure Practice Page cards have light solid background in light mode */
+body[data-theme='light'] #guided-practice .current-pose-card,
+body[data-theme='light'] #guided-practice .next-pose-card {
+    background-color: white !important; /* Use white or var(--bg-secondary) */
+    background-image: none !important; /* Remove any gradients */
+    border-color: var(--border-color);
+}
+
+body[data-theme='light'] #guided-practice .next-pose-card {
+    opacity: 1; /* Ensure full opacity in light mode if needed */
+}
+    color: #1f2937 !important;
+}
     </style>
 </head>
 <body class="bg-gray-50 font-sans" data-theme="light">
