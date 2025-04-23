@@ -231,6 +231,26 @@
         body[data-theme='light'] .pose-card {
             background-color: white;
         }
+       
+/* Ensure pose card text is black in light mode */
+body[data-theme='light'] .pose-card .text-gray-600,
+body[data-theme='light'] .pose-card .text-gray-500,
+body[data-theme='light'] .pose-card .text-gray-700,
+body[data-theme='light'] .pose-card .text-gray-800 {
+    color: #1f2937 !important; /* Black for readability */
+}
+
+/* Ensure breathing card background is light orange in light mode */
+body[data-theme='light'] .pose-card .bg-orange-50 {
+    background-color: #fff7ed !important; /* Tailwind orange-50 */
+    color: #b45309 !important; /* Dark orange text for contrast */
+}
+body[data-theme='light'] .pose-card .bg-orange-100 {
+    background-color: #ffedd5 !important; /* Tailwind orange-100 */
+    color: #b45309 !important;
+}
+
+
         .next-pose-card {
             opacity: 0.8;
         }
