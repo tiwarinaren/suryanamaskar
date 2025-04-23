@@ -155,13 +155,22 @@
             border-color: var(--border-color);
         }
         
-        /* Ensure header stays colorful in both modes */
+        /* Navigation header styles */
         header.bg-gradient-to-r {
-            background-color: #f97316 !important;
+            background-color: white;
         }
         
         [data-theme="dark"] header.bg-gradient-to-r {
-            background-color: #ea580c !important;
+            background-color: #1f2937 !important;
+        }
+        
+        /* Navigation header styles */
+        header {
+            background-color: white;
+        }
+        
+        [data-theme="dark"] header {
+            background-color: #1f2937 !important;
         }
         
         /* Header styles */
@@ -220,7 +229,7 @@
         
         /* Force white background for cards in light mode */
         body[data-theme='light'] .pose-card {
-            background-color: white !important;
+            background-color: white;
         }
         .next-pose-card {
             opacity: 0.8;
@@ -403,11 +412,30 @@
         
         /* Practice controls layout - more compact */
         .practice-controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    background-color: #fff !important; /* Force white background in all cases */
+    /* Remove any background-image or gradient if present */
+    background-image: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+[data-theme="light"] .practice-controls {
+    background-color: #fff !important; /* White for light theme */
+    background-image: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+[data-theme="dark"] .practice-controls {
+    background-color: #1f2937 !important; /* Keep dark for dark theme */
+    background-image: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
         
         .practice-controls button {
             width: 42px;
@@ -444,7 +472,7 @@
 <body class="bg-gray-50 font-sans" data-theme="light">
     <div class="max-w-md mx-auto shadow-lg rounded-b-xl overflow-hidden mb-10" id="app-container">
         <!-- Navigation Header -->
-        <div class="flex border-b bg-white dark:bg-gray-800 p-2 text-center relative overflow-hidden shadow-lg rounded-t-lg" style="background-color: white !important;">
+        <div class="flex border-b bg-white dark:bg-gray-800 p-2 text-center relative overflow-hidden shadow-lg rounded-t-lg" style="background-color: white ;">
             
             <button class="tab-btn flex-1 py-2 px-2 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="pose-guide">
                 <i class="fas fa-book-open text-lg text-gray-700 dark:text-gray-200"></i><span class="text-xs sm:text-sm">Guide</span>
@@ -807,7 +835,7 @@
                     </div>
                 </div>
 
-                <div class="mt-3 bg-blue-50 p-2 rounded-lg">
+               <!-- <div class="mt-3 bg-blue-50 p-2 rounded-lg">
                     <h3 class="font-medium text-blue-800 mb-1"><i class="fas fa-info-circle mr-1"></i>Practice Tips</h3>
                     <ul class="text-xs text-blue-700 space-y-0.5 list-disc list-inside">
                         <li>Focus on your breathing throughout the sequence.</li>
@@ -815,7 +843,7 @@
                         <li>Modify poses as needed for your flexibility.</li>
                         <li>Keep your awareness on the present moment.</li>
                     </ul>
-                </div>
+                </div>-->
             </div>
 
             <!-- Timing Tab -->
