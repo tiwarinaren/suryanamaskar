@@ -96,21 +96,20 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Ensure tab button text is visible in light mode */
-        body[data-theme='light'] .tab-btn {
-            color: #ffffff !important; /* White text for light mode nav */
-        }
+        /* Ensure tab button text uses default contrast color in light mode */
+        body[data-theme='light'] .tab-btn,
         body[data-theme='light'] .tab-btn i,
         body[data-theme='light'] .tab-btn span {
-             color: #ffffff !important; /* Ensure icon and text also get the color */
+            color: #1f2937 !important; /* Force dark text/icon color in light mode */
         }
         
-        /* Apply background colors to all relevant elements */
+        /* Apply background colors to relevant elements, excluding card-specific ones */
         /* NOTE: .pose-card removed from this rule to allow its gradient background */
-        .bg-white, .bg-gray-50, .bg-gray-100, 
+        /* NOTE: Removed .bg-gray-50, .bg-gray-100 to prevent override */
+        .bg-white, 
         .max-w-md, header + div,
         .rounded-lg, .shadow, .shadow-lg {
-            background-color: var(--bg-secondary) !important;
+            background-color: var(--bg-secondary); /* Removed !important */
             transition: background-color 0.3s ease;
             border-color: var(--border-color);
         }
@@ -210,9 +209,9 @@
         /* Pose cards */
         .current-pose-card {
             transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.2), 0 4px 6px -2px rgba(249, 115, 22, 0.1); /* Orange glow */
+            box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.2), 0 4px 6px -2px rgba(249, 115, 22, 0.1);
             border: 1px solid var(--accent-color);
-            background-color: #fff7ed; /* Added light orange background (orange-50) for light mode */
+            background-color: #fff7ed;
         }
         .next-pose-card {
             opacity: 0.8;
@@ -328,8 +327,7 @@
         }
         
         [data-theme="dark"] .pose-card {
-             /* Use background to override gradients */
-            background: var(--bg-accent) !important;
+            background-color: var(--bg-accent) !important;
         }
         
         [data-theme="dark"] .pose-image-container {
@@ -338,8 +336,7 @@
         
         /* Dark mode styles for practice page */
         [data-theme="dark"] .current-pose-card {
-             /* Use background to override gradients */
-            background: rgba(249, 115, 22, 0.15) !important;
+            background-color: rgba(249, 115, 22, 0.15) !important;
         }
         
         [data-theme="dark"] .next-pose-card {
@@ -472,7 +469,7 @@
 
                 <div class="space-y-5">
                     <!-- Pose 1: Pranamasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                         <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">1</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Pranamasana <span class="text-sm text-gray-500 dark:text-gray-400">(Prayer Pose)</span></h3>
@@ -493,7 +490,7 @@
                     </div>
 
                     <!-- Pose 2: Hasta Uttanasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                         <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">2</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Hasta Uttanasana <span class="text-sm text-gray-500 dark:text-gray-400">(Raised Arms)</span></h3>
@@ -514,7 +511,7 @@
                     </div>
 
                     <!-- Pose 3: Hasta Padasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                         <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">3</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Hasta Padasana <span class="text-sm text-gray-500 dark:text-gray-400">(Hand to Foot)</span></h3>
@@ -535,7 +532,7 @@
                     </div>
 
                     <!-- Pose 4: Ashwa Sanchalanasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                          <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">4</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Ashwa Sanchalanasana <span class="text-sm text-gray-500 dark:text-gray-400">(Equestrian)</span></h3>
@@ -556,7 +553,7 @@
                     </div>
 
                     <!-- Pose 5: Parvatasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                          <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">5</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Parvatasana <span class="text-sm text-gray-500 dark:text-gray-400">(Mountain)</span></h3>
@@ -577,7 +574,7 @@
                     </div>
 
                     <!-- Pose 6: Ashtanga Namaskara -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                          <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">6</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Ashtanga Namaskara <span class="text-sm text-gray-500 dark:text-gray-400">(Eight Limbs)</span></h3>
@@ -598,7 +595,7 @@
                     </div>
 
                     <!-- Pose 7: Bhujangasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                          <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">7</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Bhujangasana <span class="text-sm text-gray-500 dark:text-gray-400">(Cobra)</span></h3>
@@ -619,7 +616,7 @@
                     </div>
 
                     <!-- Pose 8: Parvatasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                          <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">8</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Parvatasana <span class="text-sm text-gray-500 dark:text-gray-400">(Mountain)</span></h3>
@@ -640,7 +637,7 @@
                     </div>
 
                      <!-- Pose 9: Ashwa Sanchalanasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                          <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">9</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Ashwa Sanchalanasana <span class="text-sm text-gray-500 dark:text-gray-400">(Equestrian)</span></h3>
@@ -661,7 +658,7 @@
                     </div>
 
                      <!-- Pose 10: Hasta Padasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                          <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">10</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Hasta Padasana <span class="text-sm text-gray-500 dark:text-gray-400">(Hand to Foot)</span></h3>
@@ -682,7 +679,7 @@
                     </div>
 
                      <!-- Pose 11: Hasta Uttanasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                          <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">11</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Hasta Uttanasana <span class="text-sm text-gray-500 dark:text-gray-400">(Raised Arms)</span></h3>
@@ -703,7 +700,7 @@
                     </div>
 
                      <!-- Pose 12: Pranamasana -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
+                    <div class="bg-gradient-to-br from-orange-50 to-white dark:from-gray-800 dark:to-gray-700 p-4 rounded-xl shadow-md pose-card border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01]">
                          <div class="flex items-center mb-3">
                             <div class="bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-500 dark:to-orange-600 dark:bg-opacity-30 text-orange-800 dark:text-orange-100 rounded-full w-9 h-9 flex items-center justify-center font-bold mr-3 flex-shrink-0 shadow-sm">12</div>
                             <h3 class="text-md font-semibold text-gray-800 dark:text-gray-100">Pranamasana <span class="text-sm text-gray-500 dark:text-gray-400">(Prayer Pose)</span></h3>
