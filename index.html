@@ -95,6 +95,37 @@
             color: var(--text-primary);
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+        
+        /* Special text formatting consistent across light and dark modes */
+        #guided-practice #special-instruction-container {
+            background-color: #ea580c !important; /* Dark orange (orange-600) */
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.75rem 1rem !important;
+            margin: 0.75rem 0 !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            border: none !important;
+        }
+
+        #guided-practice #special-instruction-text {
+            font-weight: 700 !important; /* Bold */
+            color: white !important; /* White text */
+            text-align: center !important;
+            font-size: 1.125rem !important; /* text-lg */
+            letter-spacing: 0.05em !important; /* tracking-wide */
+            text-transform: uppercase !important;
+        }
+
+        /* Force special instruction colors in both themes with maximum specificity */
+        body[data-theme="light"] #guided-practice #special-instruction-container,
+        body[data-theme="dark"] #guided-practice #special-instruction-container {
+            background-color: #ea580c !important; /* Dark orange (orange-600) */
+            color: white !important;
+        }
+
+        body[data-theme="light"] #guided-practice #special-instruction-text,
+        body[data-theme="dark"] #guided-practice #special-instruction-text {
+            color: white !important;
+        }
 
         /* Ensure tab button text uses default contrast color in light mode */
         body[data-theme='light'] .tab-btn,
@@ -584,33 +615,7 @@ body[data-theme='light'] #guide .bg-blue-50 {
     margin-bottom: calc(0.25rem * var(--tw-space-y-reverse)) !important;
 }
 
-/* Footer styles */
-.footer {
-    background-color: var(--bg-primary);
-    color: var(--text-secondary);
-    border-top: 1px solid var(--border-color);
-    padding-top: 1rem; /* Add some top padding */
-    padding-bottom: 1rem; /* Match existing pb-4 */
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-/* Ensure footer links match theme */
-.footer a {
-    color: var(--accent-color);
-    transition: color 0.3s ease;
-}
-
-.footer a:hover {
-    color: var(--accent-hover);
-}
-
-[data-theme="dark"] .footer a {
-    color: var(--accent-hover); /* Lighter orange for dark mode links */
-}
-
-[data-theme="dark"] .footer a:hover {
-    color: var(--accent-color);
-}
+/* No footer styles needed */
     </style>
 </head>
 <body class="bg-gray-50 font-sans" data-theme="light">
@@ -940,9 +945,9 @@ body[data-theme='light'] #guide .bg-blue-50 {
                             <img src="assets/Surya-Namaskar-step-1.jpg" alt="Current Pose" class="pose-image" id="current-pose-image" style="max-height: 300px;">
                         </div>
                         
-                        <!-- Special instruction container for poses 4 and 9 -->
-                        <div id="special-instruction-container" class="hidden mb-3 bg-orange-600 text-center py-3 rounded-lg shadow-md">
-                            <h3 id="special-instruction-text" class="text-xl font-bold uppercase tracking-wider text-red-900"></h3>
+                        <!-- Special instruction container for all poses -->
+                        <div id="special-instruction-container" class="hidden mb-3">
+                            <h3 id="special-instruction-text"></h3>
                         </div>
                         
                         <div class="bg-orange-100 dark:bg-gray-700 p-2 rounded-xl shadow-inner">
@@ -1028,6 +1033,14 @@ body[data-theme='light'] #guide .bg-blue-50 {
                                 <span class="ml-2 text-sm text-gray-600">Voice Guidance</span>
                             </label>
                         </div>
+                        
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="breathing-cues" class="rounded text-orange-500 focus:ring-orange-500"> 
+                                <span class="ml-2 text-sm text-gray-600">Breathing Cues</span>
+                            </label>
+                            <p class="text-xs text-gray-500 ml-6 mt-1">When enabled, plays "Inhale", "Exhale", "Hold" audio. When disabled, plays pose-specific instructions.</p>
+                        </div>
 
                         <div>
                             <label class="flex items-center">
@@ -1108,59 +1121,131 @@ body[data-theme='light'] #guide .bg-blue-50 {
                         <li>Practice along with the guided videos for best results</li>
                     </ul>
                 </div>
+
+                <div class="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
+                    Made with <span class="text-red-500">💗</span> by <a href="mailto:tiwarinaren@gmail.com" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors">Naren Tiwari</a>
+                </div>
             </div>
 
             <!-- Stats Tab -->
             <div id="stats" class="tab-content">
-                <!-- Today's Stats -->
-                <div class="mb-4 p-4 rounded-xl shadow bg-gradient-to-r from-orange-200 to-yellow-100 flex items-center justify-between">
-                    <div>
-                        <div class="text-xs text-gray-500 mb-1">Today, Apr 18, 2025</div>
-                        <div class="text-lg font-bold text-orange-700" id="stat-today-rounds">0</div>
-                        <div class="text-xs text-gray-500">Rounds Completed Today</div>
+                <!-- Today's Stats Card -->
+                <div class="mb-6 p-5 rounded-xl shadow-lg bg-gradient-to-r from-orange-500 to-yellow-400 text-white">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-xl font-bold">Today's Practice</h2>
+                        <div id="today-date" class="text-sm bg-white/20 px-3 py-1 rounded-full">
+                            <i class="fas fa-calendar-day mr-1"></i> <span id="current-date"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-4xl font-bold" id="stat-today-rounds">0</div>
+                        <div class="text-sm">Rounds Completed</div>
+                    </div>
+                    
+                    <!-- Share Today's Stats -->
+                    <div class="mt-4 flex gap-3">
+                        <button id="share-stats-btn" class="flex-1 bg-white text-orange-600 hover:bg-orange-50 font-medium py-2 px-4 rounded-lg shadow transition flex items-center justify-center">
+                            <i class="fas fa-share-alt mr-2"></i> Share Progress
+                        </button>
+                        <button id="mark-today-btn" class="bg-white text-orange-600 hover:bg-orange-50 font-medium py-2 px-4 rounded-lg shadow transition flex items-center justify-center">
+                            <i class="fas fa-plus mr-2"></i> Add Round
+                        </button>
                     </div>
                 </div>
-                <!-- Overall Stats Cards (smaller) -->
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="rounded-lg shadow bg-gradient-to-br from-orange-100 to-yellow-50 p-2 flex flex-col items-center">
-                        <div class="text-2xl mb-1"><i class="fas fa-sun text-orange-400"></i></div>
-                        <div class="text-lg font-bold text-orange-600" id="stat-total-rounds">0</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Total Rounds</div>
+                
+                <!-- Overall Stats Cards -->
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="rounded-xl shadow-md bg-white dark:bg-gray-800 p-4 flex flex-col items-center">
+                        <div class="text-3xl mb-2"><i class="fas fa-sun text-orange-500"></i></div>
+                        <div class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-total-rounds">0</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Total Rounds</div>
                     </div>
-                    <div class="rounded-lg shadow bg-gradient-to-br from-orange-100 to-yellow-50 p-2 flex flex-col items-center">
-                        <div class="text-2xl mb-1"><i class="fas fa-calendar-day text-orange-400"></i></div>
-                        <div class="text-lg font-bold text-orange-600" id="stat-total-days">0</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Practice Days</div>
+                    <div class="rounded-xl shadow-md bg-white dark:bg-gray-800 p-4 flex flex-col items-center">
+                        <div class="text-3xl mb-2"><i class="fas fa-calendar-check text-orange-500"></i></div>
+                        <div class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-total-days">0</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Practice Days</div>
                     </div>
-                    <div class="rounded-lg shadow bg-gradient-to-br from-orange-100 to-yellow-50 p-2 flex flex-col items-center">
-                        <div class="text-2xl mb-1"><i class="fas fa-fire text-orange-500"></i></div>
-                        <div class="text-lg font-bold text-orange-600" id="stat-streak">0</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Current Streak</div>
+                    <div class="rounded-xl shadow-md bg-white dark:bg-gray-800 p-4 flex flex-col items-center">
+                        <div class="text-3xl mb-2"><i class="fas fa-fire text-orange-500"></i></div>
+                        <div class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-streak">0</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Current Streak</div>
                     </div>
-                    <div class="rounded-lg shadow bg-gradient-to-br from-orange-100 to-yellow-50 p-2 flex flex-col items-center">
-                        <div class="text-2xl mb-1"><i class="fas fa-trophy text-yellow-500"></i></div>
-                        <div class="text-lg font-bold text-orange-600" id="stat-best-streak">0</div>
-                        <div class="text-xs text-gray-500 mt-0.5">Best Streak</div>
+                    <div class="rounded-xl shadow-md bg-white dark:bg-gray-800 p-4 flex flex-col items-center">
+                        <div class="text-3xl mb-2"><i class="fas fa-trophy text-yellow-500"></i></div>
+                        <div class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-best-streak">0</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Best Streak</div>
                     </div>
                 </div>
-                <div class="bg-white/80 dark:bg-gray-800/80 p-4 rounded-2xl shadow mb-4">
-                    <div class="flex items-center gap-2 mb-2">
-                        <i class="fas fa-check-circle text-orange-500"></i>
-                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">Habit Tracker</span>
-                        <button id="habit-plus-btn" class="ml-2 bg-teal-600 hover:bg-teal-700 text-white !text-white !bg-teal-600 !hover:bg-teal-700 rounded-full w-6 h-6 flex items-center justify-center text-base shadow transition border-2 border-teal-700" title="Mark today as completed"><i class="fas fa-plus"></i></button>
+                
+                <!-- Habit Tracker -->
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+                            <i class="fas fa-check-circle text-orange-500 mr-2"></i>Habit Tracker
+                        </h3>
+                        <button id="habit-plus-btn" class="bg-orange-500 hover:bg-orange-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-base shadow-md transition" title="Mark today as completed">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
-                    <div id="habit-grid" class="grid grid-cols-7 gap-1 mb-2"></div>
-                    <div class="text-xs text-gray-400 mt-1">Tap a day to mark/unmark as practiced.</div>
+                    <div id="habit-grid" class="grid grid-cols-7 gap-2 mb-3"></div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-2">Tap a day to mark/unmark as practiced.</div>
                 </div>
-                <div id="stats-motivation" class="text-center text-orange-700 font-semibold mt-4"></div>
+                
+                <!-- Motivation Message -->
+                <div id="stats-motivation" class="text-center text-orange-600 dark:text-orange-400 font-semibold mt-4 p-3 bg-orange-50 dark:bg-gray-700 rounded-lg"></div>
+                
+                <!-- Share Stats Modal (hidden by default) -->
+                <div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg max-w-md w-full mx-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Share Your Progress</h3>
+                            <button id="close-share-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="share-card" class="bg-gradient-to-r from-orange-500 to-yellow-400 p-4 rounded-lg text-white mb-4">
+                            <div class="text-center mb-3">
+                                <h4 class="text-xl font-bold">My Surya Namaskar Practice</h4>
+                                <p class="text-sm opacity-90" id="share-date"></p>
+                            </div>
+                            
+                            <div class="flex justify-around mb-3">
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold" id="share-today-rounds">0</div>
+                                    <div class="text-xs">Today</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold" id="share-total-rounds">0</div>
+                                    <div class="text-xs">Total</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold" id="share-streak">0</div>
+                                    <div class="text-xs">Streak</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center text-sm">
+                                <p>Join me in practicing Surya Namaskar daily!</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button id="copy-stats-btn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow transition flex items-center justify-center">
+                                <i class="fas fa-copy mr-2"></i> Copy Text
+                            </button>
+                            <button id="download-stats-btn" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg shadow transition flex items-center justify-center">
+                                <i class="fas fa-download mr-2"></i> Save Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <div class="footer text-center"> <!-- Added footer class and removed text-gray-600 pb-4 -->
-        <p>Made with <i class="fas fa-heart text-red-500"></i> by <a href="mailto:tiwarinaren@gmail.com" class="text-orange-500 hover:text-orange-600 transition duration-300">Naren Tiwari</a></p>
-    </div>
+    <!-- Footer removed as requested -->
 
     <!-- Hidden Audio Players with iOS Compatibility -->
 <audio id="transition-sound" src="assets/soft_beep.mp3" preload="auto" playsinline></audio>
@@ -1170,21 +1255,33 @@ body[data-theme='light'] #guide .bg-blue-50 {
 <audio id="left-leg-forward-sound" src="assets/left_leg_forward.mp3" preload="auto" playsinline></audio>
 <audio id="right-leg-forward-sound" src="assets/right_leg_forward.mp3" preload="auto" playsinline></audio>
 
+<!-- Special audio for all poses -->
+<audio id="pose1-audio" src="assets/pose1_join_hands.mp3" preload="auto" playsinline></audio>
+<audio id="pose2-audio" src="assets/pose2_raise_arms.mp3" preload="auto" playsinline></audio>
+<audio id="pose3-audio" src="assets/pose3_forward_bend.mp3" preload="auto" playsinline></audio>
+<audio id="pose5-audio" src="assets/pose5_mountain_pose.mp3" preload="auto" playsinline></audio>
+<audio id="pose6-audio" src="assets/pose6_eight_limbs.mp3" preload="auto" playsinline></audio>
+<audio id="pose7-audio" src="assets/pose7_cobra_pose.mp3" preload="auto" playsinline></audio>
+<audio id="pose8-audio" src="assets/pose8_mountain_pose.mp3" preload="auto" playsinline></audio>
+<audio id="pose10-audio" src="assets/pose10_forward_bend.mp3" preload="auto" playsinline></audio>
+<audio id="pose11-audio" src="assets/pose11_raise_arms.mp3" preload="auto" playsinline></audio>
+<audio id="pose12-audio" src="assets/pose12_return_to_center.mp3" preload="auto" playsinline></audio>
+
 <script>
     // --- Pose Data ---
     const poses = [
-        { name: "Pranamasana", image: "assets/Surya-Namaskar-step-1.jpg", instruction: "Stand erect, feet together. Join palms at chest center.", duration: 5, breathing: "Exhale / Normal" },
-        { name: "Hasta Uttanasana", image: "assets/Surya-Namaskar-step-2.jpg", instruction: "Inhale, raise arms, arch back gently.", duration: 5, breathing: "Inhale" },
-        { name: "Hasta Padasana", image: "assets/Surya-Namaskar-step-3.jpg", instruction: "Exhale, bend forward from hips, hands to feet.", duration: 5, breathing: "Exhale" },
+        { name: "Pranamasana", image: "assets/Surya-Namaskar-step-1.jpg", instruction: "Stand erect, feet together. Join palms at chest center.", duration: 5, breathing: "Exhale / Normal", specialText: "JOIN HANDS", specialAudio: "pose1-audio" },
+        { name: "Hasta Uttanasana", image: "assets/Surya-Namaskar-step-2.jpg", instruction: "Inhale, raise arms, arch back gently.", duration: 5, breathing: "Inhale", specialText: "RAISE ARMS", specialAudio: "pose2-audio" },
+        { name: "Hasta Padasana", image: "assets/Surya-Namaskar-step-3.jpg", instruction: "Exhale, bend forward from hips, hands to feet.", duration: 5, breathing: "Exhale", specialText: "FORWARD BEND", specialAudio: "pose3-audio" },
         { name: "Ashwa Sanchalanasana", image: "assets/Surya-Namaskar-step-4.jpg", instruction: "Inhale, step right leg back, knee down, look up.", duration: 5, breathing: "Inhale", specialAudio: "left-leg-forward-sound", specialText: "LEFT LEG FORWARD" },
-        { name: "Parvatasana", image: "assets/Surya-Namaskar-step-5.jpg", instruction: "Exhale, step left leg back, lift hips (inverted V).", duration: 5, breathing: "Exhale" },
-        { name: "Ashtanga Namaskara", image: "assets/Surya-Namaskar-step-6.jpg", instruction: "Hold breath, lower knees, chest, chin.", duration: 5, breathing: "Hold Breath" },
-        { name: "Bhujangasana", image: "assets/Surya-Namaskar-step-7.jpg", instruction: "Inhale, slide forward, lift chest (cobra).", duration: 5, breathing: "Inhale" },
-        { name: "Parvatasana", image: "assets/Surya-Namaskar-step-5.jpg", instruction: "Exhale, lift hips back to inverted V.", duration: 5, breathing: "Exhale" },
+        { name: "Parvatasana", image: "assets/Surya-Namaskar-step-5.jpg", instruction: "Exhale, step left leg back, lift hips (inverted V).", duration: 5, breathing: "Exhale", specialText: "MOUNTAIN POSE", specialAudio: "pose5-audio" },
+        { name: "Ashtanga Namaskara", image: "assets/Surya-Namaskar-step-6.jpg", instruction: "Hold breath, lower knees, chest, chin.", duration: 5, breathing: "Hold Breath", specialText: "EIGHT LIMBS", specialAudio: "pose6-audio" },
+        { name: "Bhujangasana", image: "assets/Surya-Namaskar-step-7.jpg", instruction: "Inhale, slide forward, lift chest (cobra).", duration: 5, breathing: "Inhale", specialText: "COBRA POSE", specialAudio: "pose7-audio" },
+        { name: "Parvatasana", image: "assets/Surya-Namaskar-step-5.jpg", instruction: "Exhale, lift hips back to inverted V.", duration: 5, breathing: "Exhale", specialText: "MOUNTAIN POSE", specialAudio: "pose8-audio" },
         { name: "Ashwa Sanchalanasana", image: "assets/Surya-Namaskar-step-9.jpg", instruction: "Inhale, step right foot forward, left knee down.", duration: 5, breathing: "Inhale", specialAudio: "right-leg-forward-sound", specialText: "RIGHT LEG FORWARD" },
-        { name: "Hasta Padasana", image: "assets/Surya-Namaskar-step-3.jpg", instruction: "Exhale, step left foot forward, bend forward.", duration: 5, breathing: "Exhale" },
-        { name: "Hasta Uttanasana", image: "assets/Surya-Namaskar-step-2.jpg", instruction: "Inhale, raise arms, arch back.", duration: 5, breathing: "Inhale" },
-        { name: "Pranamasana", image: "assets/Surya-Namaskar-step-1.jpg", instruction: "Exhale, return to prayer pose.", duration: 5, breathing: "Exhale" },
+        { name: "Hasta Padasana", image: "assets/Surya-Namaskar-step-3.jpg", instruction: "Exhale, step left foot forward, bend forward.", duration: 5, breathing: "Exhale", specialText: "FORWARD BEND", specialAudio: "pose10-audio" },
+        { name: "Hasta Uttanasana", image: "assets/Surya-Namaskar-step-2.jpg", instruction: "Inhale, raise arms, arch back.", duration: 5, breathing: "Inhale", specialText: "RAISE ARMS", specialAudio: "pose11-audio" },
+        { name: "Pranamasana", image: "assets/Surya-Namaskar-step-1.jpg", instruction: "Exhale, return to prayer pose.", duration: 5, breathing: "Exhale", specialText: "RETURN TO CENTER", specialAudio: "pose12-audio" },
     ];
 
     // Default Settings (will be overridden by localStorage if available)
@@ -1193,6 +1290,7 @@ body[data-theme='light'] #guide .bg-blue-50 {
         poseDurations: poses.map(p => p.duration),
         totalRounds: 5,
         voiceGuidance: true,
+        breathingCues: true,
         transitionSounds: true
     };
 
@@ -1204,6 +1302,7 @@ body[data-theme='light'] #guide .bg-blue-50 {
     let currentRound = 1;
     let totalRounds = defaultSettings.totalRounds;
     let voiceGuidanceEnabled = defaultSettings.voiceGuidance;
+    let breathingCuesEnabled = defaultSettings.breathingCues;
     let transitionSoundsEnabled = defaultSettings.transitionSounds;
     const totalPoses = poses.length;
     const SETTINGS_KEY = 'suryaNamaskarSettings'; // Key for localStorage
@@ -1285,7 +1384,17 @@ body[data-theme='light'] #guide .bg-blue-50 {
             exhaleSound,
             holdSound,
             document.getElementById('left-leg-forward-sound'),
-            document.getElementById('right-leg-forward-sound')
+            document.getElementById('right-leg-forward-sound'),
+            document.getElementById('pose1-audio'),
+            document.getElementById('pose2-audio'),
+            document.getElementById('pose3-audio'),
+            document.getElementById('pose5-audio'),
+            document.getElementById('pose6-audio'),
+            document.getElementById('pose7-audio'),
+            document.getElementById('pose8-audio'),
+            document.getElementById('pose10-audio'),
+            document.getElementById('pose11-audio'),
+            document.getElementById('pose12-audio')
         ];
         
         // Force load each audio file
@@ -1396,11 +1505,13 @@ body[data-theme='light'] #guide .bg-blue-50 {
          });
          totalRounds = finalSettings.totalRounds || defaultSettings.totalRounds;
          voiceGuidanceEnabled = finalSettings.voiceGuidance !== undefined ? finalSettings.voiceGuidance : defaultSettings.voiceGuidance;
+         breathingCuesEnabled = finalSettings.breathingCues !== undefined ? finalSettings.breathingCues : defaultSettings.breathingCues;
          transitionSoundsEnabled = finalSettings.transitionSounds !== undefined ? finalSettings.transitionSounds : defaultSettings.transitionSounds;
 
          // Update UI elements in Timing Tab to reflect loaded/default state
          roundsSelect.value = totalRounds;
          voiceGuidanceCheckbox.checked = voiceGuidanceEnabled;
+         document.getElementById('breathing-cues').checked = breathingCuesEnabled;
          transitionSoundsCheckbox.checked = transitionSoundsEnabled;
 
          // Update UI elements in Practice Tab
@@ -1424,12 +1535,14 @@ body[data-theme='light'] #guide .bg-blue-50 {
 
         const selectedRounds = parseInt(roundsSelect.value, 10);
         const voiceChecked = voiceGuidanceCheckbox.checked;
+        const breathingChecked = document.getElementById('breathing-cues').checked;
         const soundsChecked = transitionSoundsCheckbox.checked;
 
         const settingsToSave = {
             poseDurations: currentDurations, // Save the validated durations
             totalRounds: selectedRounds,
             voiceGuidance: voiceChecked,
+            breathingCues: breathingChecked,
             transitionSounds: soundsChecked
         };
 
@@ -1440,6 +1553,7 @@ body[data-theme='light'] #guide .bg-blue-50 {
             // Update global state variables used by practice tab
             totalRounds = selectedRounds;
             voiceGuidanceEnabled = voiceChecked;
+            breathingCuesEnabled = breathingChecked;
             transitionSoundsEnabled = soundsChecked;
 
             // Update UI in Practice Tab immediately
@@ -1490,7 +1604,14 @@ body[data-theme='light'] #guide .bg-blue-50 {
 
     // --- Play Breathing Cue (Fixed) ---
     function playBreathingCue(poseIndex) {
-        if (!voiceGuidanceEnabled) return; // Only play if enabled
+        if (!voiceGuidanceEnabled) return; // Only play if voice guidance is enabled
+        
+        // Check if breathing cues are enabled
+        if (!breathingCuesEnabled) {
+            // If breathing cues are disabled, play the special audio instead
+            playSpecialAudio(poseIndex);
+            return;
+        }
         
         // Force a small delay to ensure audio context is ready
         setTimeout(() => {
@@ -1503,18 +1624,22 @@ body[data-theme='light'] #guide .bg-blue-50 {
             exhaleSound.load();
             holdSound.load();
             
-            // Check if this pose has special audio that should be played first
-            if (poseData.specialAudio) {
-                // Special audio is handled in updatePoseDisplay function
-                // We'll add a delay before playing the breathing cue
-                setTimeout(() => {
-                    playBreathingSound(breathingCue);
-                }, 1500); // Delay breathing cue by 1.5 seconds to allow special audio to finish
-            } else {
-                // Play breathing cue immediately
-                playBreathingSound(breathingCue);
-            }
+            // Play breathing cue immediately
+            playBreathingSound(breathingCue);
         }, 100); // Small delay to ensure audio context is ready
+    }
+    
+    // Function to play special audio for a pose
+    function playSpecialAudio(poseIndex) {
+        const poseData = poses[poseIndex];
+        if (poseData && poseData.specialAudio) {
+            const specialAudio = document.getElementById(poseData.specialAudio);
+            if (specialAudio) {
+                console.log(`Playing special audio for pose ${poseIndex + 1}: ${poseData.specialText}`);
+                specialAudio.load();
+                playSound(specialAudio);
+            }
+        }
     }
     
     // Helper function to play the appropriate breathing sound
@@ -1555,30 +1680,18 @@ body[data-theme='light'] #guide .bg-blue-50 {
         // Fade transition for next pose image
         fadeTransition(nextPoseImage, nextPoseData.image);
         
-        // Handle special instructions for poses 4 and 9
+        // Handle special instructions for all poses
         const specialInstructionContainer = document.getElementById('special-instruction-container');
         const specialInstructionText = document.getElementById('special-instruction-text');
         
-        // Check if current pose has special text (poses 4 and 9)
-        if (currentPoseData.specialText) {
-            // Update the special instruction text
-            specialInstructionText.textContent = currentPoseData.specialText;
-            // Show the special instruction container
-            specialInstructionContainer.classList.remove('hidden');
-            
-            // Play special audio if available, enabled, and not in initial display
-            if (!isInitial && currentPoseData.specialAudio && voiceGuidanceEnabled) {
-                const specialAudio = document.getElementById(currentPoseData.specialAudio);
-                if (specialAudio) {
-                    // Play the special audio before the breathing cue
-                    specialAudio.load();
-                    playSound(specialAudio);
-                }
-            }
-        } else {
-            // Hide the special instruction container for other poses
-            specialInstructionContainer.classList.add('hidden');
-        }
+        // All poses now have special text
+        // Update the special instruction text
+        specialInstructionText.textContent = currentPoseData.specialText;
+        // Show the special instruction container
+        specialInstructionContainer.classList.remove('hidden');
+        
+        // We don't need to play special audio here anymore as it's handled in the playBreathingCue function
+        // This ensures that either breathing cues or special audio is played based on settings
 
         // Current Pose
         currentPoseNumberDisplay.textContent = currentPoseIndex + 1;
@@ -1620,6 +1733,50 @@ body[data-theme='light'] #guide .bg-blue-50 {
         }
     }
 
+    // Track completed rounds during practice
+    let completedRounds = 0;
+    
+    // Function to update completed rounds counter
+    function updateCompletedRounds() {
+        // Increment completed rounds
+        completedRounds++;
+        
+        // Update the stats immediately
+        const stats = loadStats();
+        stats.totalRounds = (stats.totalRounds || 0) + 1;
+        
+        // Update today's rounds
+        const today = getTodayStr();
+        stats.days[today] = true;
+        if (!stats.todayRounds) stats.todayRounds = {};
+        stats.todayRounds[today] = (stats.todayRounds[today] || 0) + 1;
+        
+        // Update streaks
+        let streak = 0;
+        let d = new Date();
+        while (stats.days[getTodayStrFromDate(d)]) {
+            streak++;
+            d.setDate(d.getDate()-1);
+        }
+        if (!stats.bestStreak || streak > stats.bestStreak) stats.bestStreak = streak;
+        
+        // Save stats
+        saveStats(stats);
+        
+        // Show a small notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg z-50';
+        notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i> Round ${completedRounds} completed!`;
+        document.body.appendChild(notification);
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
+    }
+    
     // Guided Practice: Move to Next Pose (Enhanced for consistent audio)
     function moveToNextPoseWithStats() {
         // Play transition sound BEFORE updating the index if enabled
@@ -1631,11 +1788,25 @@ body[data-theme='light'] #guide .bg-blue-50 {
         setTimeout(() => {
             currentPoseIndex++;
             if (currentPoseIndex >= totalPoses) {
+                // Completed a full round
+                updateCompletedRounds();
+                
                 currentPoseIndex = 0; // Wrap around poses
                 currentRound++;
                 if (currentRound > totalRounds) {
+                    // Create a more engaging completion message
+                    const completionMessage = `
+                        <div class="text-center p-4">
+                            <div class="text-3xl mb-3">🎉 Practice Complete! 🎉</div>
+                            <div class="text-xl mb-4">You finished ${totalRounds} rounds of Surya Namaskar.</div>
+                            <div class="text-sm text-gray-600">Your progress has been saved.</div>
+                        </div>
+                    `;
+                    
+                    // Show a modal or alert with the completion message
                     alert(`Practice Complete! You finished ${totalRounds} rounds.`);
-                    recordPractice(totalRounds);
+                    
+                    // Reset practice
                     resetPractice();
                     return; // Stop the timer loop
                 } else {
@@ -1903,8 +2074,22 @@ body[data-theme='light'] #guide .bg-blue-50 {
         }
         document.getElementById('stat-streak').textContent = streak;
         document.getElementById('stat-best-streak').textContent = best;
+        
+        // Update current date display
+        const currentDateElem = document.getElementById('current-date');
+        if (currentDateElem) {
+            currentDateElem.textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
         // Habit grid
         renderHabitGrid(stats.days || {});
+        
+        // Update motivation message based on streak and total rounds
+        updateMotivationMessage(streak, stats.totalRounds || 0);
     }
 
     function getTodayStrFromDate(date) {
@@ -1972,25 +2157,44 @@ body[data-theme='light'] #guide .bg-blue-50 {
         let todayRounds = stats.todayRounds || {};
         let rounds = todayRounds[today] || 0;
         document.getElementById('stat-today-rounds').textContent = rounds;
-        // Update + button state (disable if already marked)
+        
+        // Update + button state - now we always allow adding rounds
         const markBtn = document.getElementById('mark-today-btn');
         if (markBtn) {
-            if (stats.days[today]) {
-                markBtn.disabled = true;
-                markBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                markBtn.disabled = false;
-                markBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
+            markBtn.disabled = false;
+            markBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+    // Update the button text based on whether today is already marked
+    if (stats.days[today]) {
+        markBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Round';
+    } else {
+        markBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Start Today';
+    }
+    
+    // Add event listener for the "Complete Round" button
+    const completeRoundBtn = document.getElementById('complete-round-btn');
+    if (completeRoundBtn) {
+        completeRoundBtn.addEventListener('click', () => {
+            markTodayCompleted();
+        });
+    }
         }
     }
 
     function markTodayCompleted() {
         const stats = loadStats();
         const today = getTodayStr();
-        // Mark today in habit only (do not increment rounds)
+        
+        // Mark today in habit tracker
         stats.days[today] = true;
-        // Do NOT increment stats.todayRounds[today] here
+        
+        // Increment total rounds
+        stats.totalRounds = (stats.totalRounds || 0) + 1;
+        
+        // Increment today's rounds
+        if (!stats.todayRounds) stats.todayRounds = {};
+        stats.todayRounds[today] = (stats.todayRounds[today] || 0) + 1;
+        
         // Update streaks
         let streak = 0;
         let d = new Date();
@@ -1999,9 +2203,25 @@ body[data-theme='light'] #guide .bg-blue-50 {
             d.setDate(d.getDate()-1);
         }
         if (!stats.bestStreak || streak > stats.bestStreak) stats.bestStreak = streak;
+        
+        // Save stats and update UI
         saveStats(stats);
         updateStatsUI();
         updateTodayStatsUI();
+        
+        // Show a confirmation message
+        const motivationElem = document.getElementById('stats-motivation');
+        if (motivationElem) {
+            const originalText = motivationElem.textContent;
+            motivationElem.textContent = "Round added successfully! Keep up the good work!";
+            motivationElem.classList.add('bg-green-100', 'text-green-700');
+            
+            // Restore original message after 3 seconds
+            setTimeout(() => {
+                motivationElem.textContent = originalText;
+                motivationElem.classList.remove('bg-green-100', 'text-green-700');
+            }, 3000);
+        }
     }
 
     // Add event listeners for + buttons
@@ -2012,12 +2232,136 @@ body[data-theme='light'] #guide .bg-blue-50 {
         if (habitPlusBtn) habitPlusBtn.onclick = markTodayCompleted;
     }
 
+    // Update motivation message based on streak and total rounds
+    function updateMotivationMessage(streak, totalRounds) {
+        const motivationElem = document.getElementById('stats-motivation');
+        if (!motivationElem) return;
+        
+        let message = '';
+        
+        if (streak === 0) {
+            message = "Start your Surya Namaskar journey today!";
+        } else if (streak === 1) {
+            message = "Great start! Keep the momentum going tomorrow.";
+        } else if (streak < 7) {
+            message = `Awesome! You've practiced for ${streak} days in a row.`;
+        } else if (streak < 14) {
+            message = `Impressive! A ${streak}-day streak shows real dedication.`;
+        } else if (streak < 30) {
+            message = `Amazing discipline! ${streak} days of consistent practice.`;
+        } else {
+            message = `Extraordinary! ${streak} days of practice is truly inspiring!`;
+        }
+        
+        // Add total rounds message if applicable
+        if (totalRounds > 0) {
+            if (totalRounds < 50) {
+                message += ` You've completed ${totalRounds} rounds so far.`;
+            } else if (totalRounds < 100) {
+                message += ` With ${totalRounds} total rounds, you're building strength!`;
+            } else if (totalRounds < 500) {
+                message += ` ${totalRounds} rounds completed - that's dedication!`;
+            } else {
+                message += ` ${totalRounds} rounds! You're a Surya Namaskar master!`;
+            }
+        }
+        
+        motivationElem.textContent = message;
+    }
+    
+    // Function to handle sharing stats
+    function setupShareFunctionality() {
+        const shareBtn = document.getElementById('share-stats-btn');
+        const closeModalBtn = document.getElementById('close-share-modal');
+        const copyBtn = document.getElementById('copy-stats-btn');
+        const downloadBtn = document.getElementById('download-stats-btn');
+        const shareModal = document.getElementById('share-modal');
+        
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => {
+                // Update share card with current stats
+                updateShareCard();
+                // Show modal
+                shareModal.classList.remove('hidden');
+            });
+        }
+        
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                shareModal.classList.add('hidden');
+            });
+        }
+        
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                // Create text to copy
+                const stats = loadStats();
+                const today = getTodayStr();
+                const todayRounds = stats.todayRounds && stats.todayRounds[today] ? stats.todayRounds[today] : 0;
+                const totalRounds = stats.totalRounds || 0;
+                const streak = document.getElementById('stat-streak').textContent;
+                
+                const shareText = `🧘 My Surya Namaskar Practice 🧘\n\n` +
+                                 `Today: ${todayRounds} rounds\n` +
+                                 `Total: ${totalRounds} rounds\n` +
+                                 `Streak: ${streak} days\n\n` +
+                                 `Join me in practicing Surya Namaskar daily!`;
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(shareText)
+                    .then(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Copied!';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-copy mr-2"></i> Copy Text';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        copyBtn.innerHTML = '<i class="fas fa-times mr-2"></i> Failed';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-copy mr-2"></i> Copy Text';
+                        }, 2000);
+                    });
+            });
+        }
+        
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+                const shareCard = document.getElementById('share-card');
+                if (!shareCard) return;
+                
+                alert('To save as image: Take a screenshot of this card to share on social media.');
+            });
+        }
+    }
+    
+    // Update the share card with current stats
+    function updateShareCard() {
+        const stats = loadStats();
+        const today = getTodayStr();
+        const todayRounds = stats.todayRounds && stats.todayRounds[today] ? stats.todayRounds[today] : 0;
+        const totalRounds = stats.totalRounds || 0;
+        const streak = document.getElementById('stat-streak').textContent;
+        
+        // Update share card elements
+        document.getElementById('share-today-rounds').textContent = todayRounds;
+        document.getElementById('share-total-rounds').textContent = totalRounds;
+        document.getElementById('share-streak').textContent = streak;
+        document.getElementById('share-date').textContent = new Date().toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    }
+    
     // Call updateStatsUI on tab open
     const statsTabBtn = document.querySelector('[data-tab="stats"]');
     statsTabBtn.addEventListener('click', () => {
         updateStatsUI();
         updateTodayStatsUI();
         setupTodayStatsButtons();
+        setupShareFunctionality();
     });
 
     // --- Event Listeners ---
