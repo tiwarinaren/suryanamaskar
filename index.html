@@ -560,7 +560,25 @@ body[data-theme='light'] #guided-practice .current-pose-card #current-pose-instr
      color: #1f2937 !important; /* Force black/dark gray */
 }
 
-        /* Compact Practice Tab Styles */
+/* Fix text colors for timer container in light mode */
+[data-theme="light"] .practice-controls .timer-container .text-gray-600,
+[data-theme="light"] #guided-practice .next-pose-card .text-gray-700,
+[data-theme="light"] #guided-practice .next-pose-card .text-gray-600,
+[data-theme="light"] #round-count,
+[data-theme="light"] #total-rounds-display {
+    color: #1f2937 !important; /* Force black text in light mode */
+}
+
+[data-theme="light"] .timer-container {
+    color: #1f2937 !important;
+}
+
+[data-theme="light"] #next-pose-name,
+[data-theme="light"] #next-pose-instruction {
+    color: #1f2937 !important;
+}
+
+/* Compact Practice Tab Styles */
         #guided-practice .p-4, 
         #guided-practice .p-3, 
         #guided-practice .p-2 {
