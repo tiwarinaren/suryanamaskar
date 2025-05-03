@@ -578,6 +578,15 @@ body[data-theme='light'] #guided-practice .current-pose-card #current-pose-instr
     color: #1f2937 !important;
 }
 
+/* Ensure text in next pose breathing instruction is readable in light mode */
+body[data-theme='light'] #guided-practice .next-pose-card .text-xs.text-gray-600.font-medium {
+    color: #1f2937 !important; /* Dark text */
+}
+
+body[data-theme='light'] #guided-practice .next-pose-card .bg-white {
+    background-color: #f3f4f6 !important; /* Light gray background */
+}
+
 /* Compact Practice Tab Styles */
         #guided-practice .p-4, 
         #guided-practice .p-3, 
