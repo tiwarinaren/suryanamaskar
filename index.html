@@ -1375,16 +1375,25 @@ body[data-theme='light'] #guide .bg-blue-50 {
     function playSound(audioElement) {
         if (!audioElement) return;
         
-        // Reset the audio to the beginning
+        // Ensure volume is set correctly before playing
+        audioElement.volume = 1;
+        
+        // Reset audio element
+        audioElement.pause();
         audioElement.currentTime = 0;
         
-        // Play the sound with error handling
+        // Create a user interaction promise for iOS
         const playPromise = audioElement.play();
         
+        // Handle play() promise to catch errors properly
         if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.error('Error playing sound:', error);
-            });
+            playPromise
+                .then(() => {
+                    console.log(`Playing sound: ${audioElement.src.split('/').pop()}`);
+                })
+                .catch(error => {
+                    console.error("Audio play failed:", error);
+                });
         }
     }
 
@@ -1424,33 +1433,25 @@ body[data-theme='light'] #guide .bg-blue-50 {
             document.getElementById('pose12-audio')
         ];
         
-        // Force load each audio file
+        // Force load each audio file without playing
         audioElements.forEach(audio => {
-            // Create a temporary function to handle user interaction requirement on iOS
-            const loadAudio = () => {
-                // Load the audio file
-                audio.load();
-                
-                // Set volume to 0 temporarily
-                const originalVolume = audio.volume;
-                audio.volume = 0;
-                
-                // Try to play and immediately pause to "unlock" audio on iOS
-                audio.play().then(() => {
-                    // Successfully played, now pause and restore volume
-                    audio.pause();
-                    audio.currentTime = 0;
-                    audio.volume = originalVolume;
-                    console.log(`Preloaded audio: ${audio.src.split('/').pop()}`);
-                }).catch(error => {
-                    // If it fails, that's okay - we'll try again when needed
-                    console.log(`Could not preload audio: ${error.message}`);
-                    audio.volume = originalVolume;
-                });
-            };
+            if (!audio) return;
             
-            // Call the function
-            loadAudio();
+            // Just load the audio file
+            audio.load();
+            
+            // Set preload attribute
+            audio.preload = "auto";
+            
+            // Set initial volume to 0 just in case
+            audio.volume = 0;
+            
+            // Add loadeddata event listener to ensure audio is ready
+            audio.addEventListener('loadeddata', () => {
+                // Reset volume to 1 once loaded
+                audio.volume = 1;
+                console.log(`Audio loaded: ${audio.src.split('/').pop()}`);
+            });
         });
     }
 
@@ -1613,11 +1614,9 @@ body[data-theme='light'] #guide .bg-blue-50 {
         if (playPromise !== undefined) {
             playPromise
                 .then(() => {
-                    // Playback started successfully
                     console.log(`Playing sound: ${audioElement.src.split('/').pop()}`);
                 })
                 .catch(error => {
-                    // Auto-play was prevented or other error
                     console.error("Audio play failed:", error);
                     
                     // For iOS, try playing again with a slight delay
