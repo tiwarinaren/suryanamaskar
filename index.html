@@ -9,8 +9,8 @@
        <meta name="application-name" content="Surya Namaskar App">
        <meta name="description" content="Guided practice and guide for Surya Namaskar (Sun Salutation).">
        <meta name="mobile-web-app-capable" content="yes">
-       <meta name="apple-mobile-web-app-capable"="yes">
-       <meta name="apple-mobile-web-app-status-bar-style"="black"> <!-- Changed to black for seamless look -->
+       <meta name="apple-mobile-web-app-capable" content="yes">
+       <meta name="apple-mobile-web-app-status-bar-style" content="black"> <!-- Changed to black for seamless look -->
        <meta name="apple-mobile-web-app-title" content="SuryaNamaskar">
        <meta name="theme-color" content="#f97316"> <!-- Orange-500 -->
        <link rel="icon" type="image/png" sizes="192x192" href="icon.png"> <!-- Standard icon -->
@@ -21,6 +21,53 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Tab Display Control - FIXED */
+        .tab-content {
+            display: none !important;
+        }
+
+        .tab-content.active {
+            display: block !important;
+        }
+
+        /* Tab Button Styling */
+        .tab-btn {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tab-btn.text-orange-600 {
+            color: #f97316 !important;
+            background-color: rgba(249, 115, 22, 0.1) !important;
+        }
+
+        .tab-btn.text-orange-600 i,
+        .tab-btn.text-orange-600 span {
+            color: #f97316 !important;
+        }
+
+        /* Dark mode tab styling */
+        [data-theme="dark"] .tab-btn.text-orange-600 {
+            background-color: rgba(249, 115, 22, 0.2) !important;
+        }
+        
+        .tab-btn.border-orange-500 {
+            border-bottom-color: #f97316 !important;
+        }
+        
+        .tab-btn.text-gray-500 {
+            color: #6b7280 !important;
+        }
+        
+        [data-theme="light"] .tab-btn.text-orange-600 {
+            color: #f97316 !important;
+        }
+        
+        [data-theme="light"] .tab-btn.text-orange-600 i,
+        [data-theme="light"] .tab-btn.text-orange-600 span {
+            color: #f97316 !important;
+        }
+        
         /* Dark mode variables */
         :root {
             --bg-primary: #f9fafb;
@@ -64,606 +111,367 @@
         }
         
         /* Fix for mobile dark text colors */
-        [data-theme="dark"] .text-gray-600,
-        [data-theme="dark"] .text-gray-700,
-        [data-theme="dark"] .text-gray-800 {
-            color: #e5e7eb !important;
+        [data-theme="light"] .text-gray-600,
+        [data-theme="light"] .text-gray-700,
+        [data-theme="light"] .text-gray-800 {
+            color: #1f2937 !important;
         }
         
-        [data-theme="dark"] .text-orange-600,
-        [data-theme="dark"] .text-orange-700,
-        [data-theme="dark"] .text-orange-800 {
-            color: #fdba74 !important;
+        /* Header and Navigation - Light Mode */
+        [data-theme="light"] header,
+        [data-theme="light"] header.bg-gradient-to-r {
+            background-color: #ffffff !important;
+            border-bottom: 2px solid #e5e7eb;
         }
         
-        /* Fix for mobile dark text colors */
-        [data-theme="dark"] .text-gray-600,
-        [data-theme="dark"] .text-gray-700,
-        [data-theme="dark"] .text-gray-800 {
-            color: #e5e7eb !important;
+        [data-theme="light"] .tab-btn {
+            color: #4b5563 !important;
         }
         
-        [data-theme="dark"] .text-orange-600,
-        [data-theme="dark"] .text-orange-700,
-        [data-theme="dark"] .text-orange-800 {
-            color: #fdba74 !important;
+        [data-theme="light"] .tab-btn.text-orange-600 {
+            color: #f97316 !important;
         }
         
-        /* Apply theme variables */
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
+        [data-theme="light"] .tab-btn i,
+        [data-theme="light"] .tab-btn span {
+            color: #4b5563 !important;
         }
         
-        /* Special text formatting consistent across light and dark modes */
-        #guided-practice #special-instruction-container {
-            background-color: #ea580c !important; /* Dark orange (orange-600) */
-            border-radius: 0.375rem; /* rounded-md */
-            padding: 0.75rem 1rem !important;
-            margin: 0.75rem 0 !important;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-            border: none !important;
+        [data-theme="light"] .tab-btn.text-orange-600 i,
+        [data-theme="light"] .tab-btn.text-orange-600 span {
+            color: #f97316 !important;
+        }
+        
+        [data-theme="light"] h1,
+        [data-theme="light"] h2,
+        [data-theme="light"] h3,
+        [data-theme="light"] h4,
+        [data-theme="light"] h5,
+        [data-theme="light"] h6 {
+            color: #1f2937 !important;
         }
 
-        #guided-practice #special-instruction-text {
-            font-weight: 700 !important; /* Bold */
-            color: white !important; /* White text */
-            text-align: center !important;
-            font-size: 1.125rem !important; /* text-lg */
-            letter-spacing: 0.05em !important; /* tracking-wide */
-            text-transform: uppercase !important;
+        [data-theme="light"] .text-orange-600,
+        [data-theme="light"] .text-orange-700,
+        [data-theme="light"] .text-orange-800 {
+            color: #ea580c !important;
+        }
+        
+        /* Light Mode - Pose Card Backgrounds */
+        [data-theme="light"] .pose-card {
+            background-color: #ffffff !important;
+            border-color: #d1d5db !important;
         }
 
-        /* Force special instruction colors in both themes with maximum specificity */
-        body[data-theme="light"] #guided-practice #special-instruction-container,
-        body[data-theme="dark"] #guided-practice #special-instruction-container {
-            background-color: #ea580c !important; /* Dark orange (orange-600) */
+        /* Light Mode - Pose Number Circles */
+        [data-theme="light"] .bg-gradient-to-br.from-orange-100.to-yellow-100 {
+            background-color: #f97316 !important;
             color: white !important;
         }
 
-        body[data-theme="light"] #guided-practice #special-instruction-text,
-        body[data-theme="dark"] #guided-practice #special-instruction-text {
-            color: white !important;
+        [data-theme="light"] .pose-card .text-gray-600,
+        [data-theme="light"] .pose-card .text-gray-500,
+        [data-theme="light"] .pose-card .text-gray-700,
+        [data-theme="light"] .pose-card .text-gray-800 {
+            color: #374151 !important;
         }
 
-        /* Ensure tab button text uses default contrast color in light mode */
-        body[data-theme='light'] .tab-btn,
-        body[data-theme='light'] .tab-btn i,
-        body[data-theme='light'] .tab-btn span {
-            color: #1f2937 !important; /* Force dark text/icon color in light mode */
+        [data-theme="light"] .pose-card .bg-orange-50 {
+            background-color: #fff7ed !important;
+            color: #92400e !important;
         }
         
-        /* Apply background colors to relevant elements, excluding card-specific ones */
-        /* NOTE: .pose-card removed from this rule to allow its gradient background */
-        /* NOTE: Removed .bg-gray-50, .bg-gray-100 to prevent override */
-        .bg-white, 
-        .max-w-md, header + div,
-        .rounded-lg, .shadow, .shadow-lg {
-            background-color: var(--bg-secondary); /* Removed !important */
-            transition: background-color 0.3s ease;
-            border-color: var(--border-color);
-        }
-        
-        /* Fix blue info boxes in dark mode */
-        [data-theme="dark"] .bg-blue-50 {
-            background-color: rgba(30, 58, 138, 0.3) !important; /* dark blue */
-        }
-        
-        [data-theme="dark"] .text-blue-700,
-        [data-theme="dark"] .text-blue-800 {
-            color: #93c5fd !important; /* lighter blue for dark mode */
-        }
-        
-        /* Fix text colors for better readability in dark mode */
-        .text-gray-800, .text-gray-700, .text-gray-600 {
-            color: var(--text-primary);
-            transition: color 0.3s ease;
-        }
-        
-        .text-gray-500 {
-            color: var(--text-secondary);
-            transition: color 0.3s ease;
-        }
-        
-        /* Ensure dark mode has white text for better contrast */
-        [data-theme="dark"] .text-gray-800, 
-        [data-theme="dark"] .text-gray-700, 
-        [data-theme="dark"] .text-gray-600 {
-            color: #f3f4f6 !important; /* Light gray, almost white */
-        }
-        
-        [data-theme="dark"] .text-gray-500 {
-            color: #d1d5db !important; /* Lighter gray */
-        }
-        
-        /* Fix borders in dark mode */
-        [data-theme="dark"] .border,
-        [data-theme="dark"] .border-b,
-        [data-theme="dark"] .border-t,
-        [data-theme="dark"] .border-l,
-        [data-theme="dark"] .border-r {
-            border-color: var(--border-color);
-        }
-        
-        /* Navigation header styles */
-        header.bg-gradient-to-r {
-            background-color: white;
-        }
-        
-        [data-theme="dark"] header.bg-gradient-to-r {
-            background-color: #1f2937 !important;
-        }
-        
-        /* Navigation header styles */
-        header {
-            background-color: white;
-        }
-        
-        [data-theme="dark"] header {
-            background-color: #1f2937 !important;
-        }
-        
-        /* Header styles */
-        header.compact-header {
-            padding: 0.5rem !important;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        header.compact-header h1 {
-            font-size: 1.25rem !important;
-            margin: 0;
-        }
-        
-        /* Hide header subtitle on compact mode */
-        header.compact-header p {
-            display: none;
-        }
-        
-        /* Tab content styles */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* Pose image styles - INCREASED HEIGHT for mobile */
-        .pose-image {
-            transition: transform 0.3s ease;
-            max-height: 280px; /* Increased from 220px for better mobile viewing */
-            height: auto; /* Allow natural aspect ratio */
-            object-fit: cover;
-            width: 100%;
-            display: block; /* Ensure it takes full width */
-        }
-        .pose-image:hover {
-            transform: scale(1.05);
-        }
-        
-        /* Progress bar */
-        .progress-bar {
-            height: 6px;
-            transition: width 0.5s linear;
-        }
-        
-        /* Pose cards */
-        .current-pose-card {
-            transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.2), 0 4px 6px -2px rgba(249, 115, 22, 0.1);
-            border: 1px solid var(--accent-color);
-            background-color: var(--bg-secondary) !important;
-        }
-        
-        /* Force white background for cards in light mode */
-        body[data-theme='light'] .pose-card {
-            background-color: white;
-        }
-       
-/* Ensure pose card text is black in light mode */
-body[data-theme='light'] .pose-card .text-gray-600,
-body[data-theme='light'] .pose-card .text-gray-500,
-body[data-theme='light'] .pose-card .text-gray-700,
-body[data-theme='light'] .pose-card .text-gray-800 {
-    color: #1f2937 !important; /* Black for readability */
-}
-
-/* Ensure breathing card background is light orange in light mode */
-body[data-theme='light'] .pose-card .bg-orange-50 {
-    background-color: #fff7ed !important; /* Tailwind orange-50 */
-    color: #b45309 !important; /* Dark orange text for contrast */
-}
-body[data-theme='light'] .pose-card .bg-orange-100 {
-    background-color: #ffedd5 !important; /* Tailwind orange-100 */
-    color: #b45309 !important;
-}
-
-
-        .next-pose-card {
-            opacity: 0.8;
-        }
-        
-        /* Video container */
-        #videoContainer {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
-            height: 0;
-            overflow: hidden;
-        }
-        #videoContainer iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* Range input styling */
-        input[type=range] {
-            height: 6px;
-            cursor: pointer;
-            appearance: none;
-            width: 100%;
-            background: var(--border-color);
-            border-radius: 9999px;
-            outline: none;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            background: var(--accent-color);
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        input[type=range]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            background: var(--accent-color);
-            cursor: pointer;
-            border-radius: 50%;
-            border: none;
-        }
-        
-        /* Image container styles */
-        .pose-image-container {
-            min-height: 280px; /* Match max-height of image - INCREASED */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border-radius: 0.5rem;
-            background-color: var(--bg-accent);
-        }
-        
-        /* Dark mode toggle */
-        .theme-toggle {
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px var(--shadow-color);
-            transition: all 0.3s ease;
-            color: var(--text-primary);
-            margin-left: auto;
-        }
-        
-        .theme-toggle:hover {
-            transform: scale(1.1);
-            background-color: var(--accent-color);
-            color: white;
-        }
-        
-        [data-theme="dark"] .theme-toggle {
-            background-color: var(--bg-accent);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-        }
-        
-        [data-theme="dark"] .theme-toggle:hover {
-            background-color: var(--accent-color);
-        }
-        
-        /* Video link styles */
-        .video-link {
-            display: block;
-            padding: 12px;
-            border-radius: 8px;
-            background-color: var(--bg-accent);
-            color: var(--text-primary);
-            text-decoration: none;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
-            border: 1px solid var(--border-color);
-        }
-        
-        .video-link:hover {
-            background-color: var(--accent-color);
-            color: white;
-        }
-        
-        /* Additional dark mode specific styles */
-        [data-theme="dark"] #app-container {
-            background-color: var(--bg-secondary);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-        
-        [data-theme="dark"] .pose-card {
-            background-color: var(--bg-secondary) !important;
-        }
-        
-        [data-theme="dark"] .pose-image-container {
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-        
-        /* Dark mode styles for practice page */
-        [data-theme="dark"] .current-pose-card {
-            background-color: var(--bg-secondary) !important;
-            border: 1px solid var(--accent-color);
-        }
-        
-        [data-theme="dark"] .next-pose-card {
-            background-color: var(--bg-accent) !important;
-            opacity: 0.8;
-        }
-        
-        [data-theme="dark"] .bg-orange-100 {
-            background-color: rgba(249, 115, 22, 0.2) !important;
-        }
-        
-        [data-theme="dark"] #current-pose-instruction,
-        [data-theme="dark"] #next-pose-instruction {
-            color: #e5e7eb !important;
-        }
-        
-        [data-theme="dark"] #current-breathing-cue {
-            color: #fdba74 !important; /* Light orange */
-        }
-        
-        [data-theme="dark"] .tab-btn {
-            color: var(--text-secondary);
-        }
-        
-        [data-theme="dark"] .tab-btn.text-orange-600 {
-            color: var(--accent-color) !important;
+        [data-theme="light"] .pose-card .bg-orange-100 {
+            background-color: #ffedd5 !important;
+            color: #92400e !important;
         }
 
-        /* Restore tab button text color in dark mode (overrides the light mode !important) */
-        [data-theme="dark"] .tab-btn,
-        [data-theme="dark"] .tab-btn i,
-        [data-theme="dark"] .tab-btn span {
-            color: var(--text-secondary) !important; /* Use secondary text color for dark mode */
+        /* Light Mode - Practice Controls */
+        [data-theme="light"] .practice-controls {
+            background-color: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
         }
 
-        /* Fix dropdown background in dark mode */
-        [data-theme="dark"] #timing select#rounds-select {
-            background-color: var(--bg-secondary); /* Use secondary background for contrast */
-            color: var(--text-primary); /* Use primary text color */
-            border-color: var(--border-color); /* Match other dark mode borders */
-        }
-        
-        [data-theme="dark"] input[type=range] {
-            background-color: var(--bg-accent);
-        }
-        
-        [data-theme="dark"] .video-link {
-            background-color: var(--bg-accent);
-        }
-        
-        [data-theme="dark"] .video-link:hover {
-            background-color: var(--accent-color);
-        }
-        
-        /* Practice controls layout - more compact */
-        .practice-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    background-color: #fff !important; /* Force white background in all cases */
-    /* Remove any background-image or gradient if present */
-    background-image: none !important;
-    box-shadow: none !important;
-    border: none !important;
-}
-
-[data-theme="light"] .practice-controls {
-    background-color: #fff !important; /* White for light theme */
-    background-image: none !important;
-    box-shadow: none !important;
-    border: none !important;
-}
-
-[data-theme="dark"] .practice-controls {
-    background-color: #1f2937 !important; /* Keep dark for dark theme */
-    background-image: none !important;
-    box-shadow: none !important;
-    border: none !important;
-}
-        
-        .practice-controls button {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            transition: all 0.3s ease;
-        }
-        
-        .practice-controls .timer-container {
-            text-align: center;
-            padding: 0 0.25rem;
-        }
-        
-        /* Media queries for responsive design */
-        @media (max-width: 640px) {
-            .pose-image {
-                max-height: 250px; /* Slightly smaller on very small screens */
-            }
-            .pose-image-container {
-                min-height: 250px;
-            }
+        [data-theme="light"] .timer-container,
+        [data-theme="light"] .timer-container .text-gray-600 {
+            color: #1f2937 !important;
         }
 
-        /* Add position relative to header to contain the absolute positioned toggle */
-        header {
-            position: relative;
+        /* Light Mode - Current/Next Pose Cards */
+        [data-theme="light"] #guided-practice {
+            background-color: #ffffff !important;
         }
 
-        body[data-theme='light'] .pose-card .text-gray-800,
-body[data-theme='light'] .pose-card .text-gray-700,
-body[data-theme='light'] .pose-card .text-gray-600,
-body[data-theme='light'] .pose-card .text-gray-500 {
-    color: #1f2937 !important;
-}
-
-/* Ensure Practice Page cards have light solid background in light mode */
-body[data-theme='light'] #guided-practice .current-pose-card,
-body[data-theme='light'] #guided-practice .next-pose-card {
-    background-color: white !important; /* Use white or var(--bg-secondary) */
-    background-image: none !important; /* Remove any gradients */
-    border-color: var(--border-color);
-}
-
-body[data-theme='light'] #guided-practice .next-pose-card {
-    opacity: 1; /* Ensure full opacity in light mode if needed */
-
-    color: #1f2937 !important;
-}
-
-/* Ensure inner content area of practice cards is light in light mode */
-body[data-theme='light'] #guided-practice .current-pose-card > div,
-body[data-theme='light'] #guided-practice .next-pose-card > div {
-    background-color: transparent !important; /* Make inner divs transparent so card bg shows */
-}
-
-/* Ensure text color is correct within practice cards in light mode */
-body[data-theme='light'] #guided-practice .current-pose-card p,
-body[data-theme='light'] #guided-practice .next-pose-card p {
-     color: var(--text-primary) !important; /* Use primary text color for light mode */
-}
-body[data-theme='light'] #guided-practice .current-pose-card #current-breathing-cue {
-     color: var(--accent-color) !important; /* Use accent color for breathing cue */
-}
-
-/* Ensure pose instruction text is black/dark gray in light mode */
-body[data-theme='light'] #guided-practice .current-pose-card #current-pose-instruction {
-     color: #1f2937 !important; /* Force black/dark gray */
-}
-
-/* Fix text colors for timer container in light mode */
-[data-theme="light"] .practice-controls .timer-container .text-gray-600,
-[data-theme="light"] #guided-practice .next-pose-card .text-gray-700,
-[data-theme="light"] #guided-practice .next-pose-card .text-gray-600,
-[data-theme="light"] #round-count,
-[data-theme="light"] #total-rounds-display {
-    color: #1f2937 !important; /* Force black text in light mode */
-}
-
-[data-theme="light"] .timer-container {
-    color: #1f2937 !important;
-}
-
-[data-theme="light"] #next-pose-name,
-[data-theme="light"] #next-pose-instruction {
-    color: #1f2937 !important;
-}
-
-/* Ensure text in next pose breathing instruction is readable in light mode */
-body[data-theme='light'] #guided-practice .next-pose-card .text-xs.text-gray-600.font-medium {
-    color: #1f2937 !important; /* Dark text */
-}
-
-body[data-theme='light'] #guided-practice .next-pose-card .bg-white {
-    background-color: #f3f4f6 !important; /* Light gray background */
-}
-
-/* Compact Practice Tab Styles */
-        #guided-practice .p-4, 
-        #guided-practice .p-3, 
-        #guided-practice .p-2 {
-            padding: 0.5rem !important; /* Reduce padding */
+        [data-theme="light"] #guided-practice .practice-controls {
+            background-color: #fff7ed !important;
+            border: 1px solid #fed7aa !important;
         }
-        #guided-practice .mb-4, 
-        #guided-practice .mb-3, 
-        #guided-practice .mb-2 {
-            margin-bottom: 0.5rem !important; /* Reduce margin */
+
+        [data-theme="light"] #guided-practice .current-pose-card {
+            background-color: #fff7ed !important;
+            border-color: #fed7aa !important;
         }
-        #guided-practice .space-y-4 > :not([hidden]) ~ :not([hidden]) {
-             --tw-space-y-reverse: 0;
-             margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse))) !important; /* Reduce space-y-4 */
-             margin-bottom: calc(0.5rem * var(--tw-space-y-reverse)) !important;
+
+        [data-theme="light"] #guided-practice .next-pose-card {
+            background-color: #f3f4f6 !important;
+            border-color: #d1d5db !important;
         }
-        /* Reduce padding/margin specifically on the cards */
-        #guided-practice .current-pose-card,
-        #guided-practice .next-pose-card {
-             padding: 0.5rem !important; /* Reduce card internal padding */
-             margin-bottom: 0.5rem !important; /* Reduce space below cards */
+
+        [data-theme="light"] #guided-practice .current-pose-card .bg-orange-100 {
+            background-color: #ffedd5 !important;
         }
-        /* Reduce padding on inner elements if necessary */
-        #guided-practice .current-pose-card > div,
-        #guided-practice .next-pose-card > div {
-             padding: 0.25rem !important; /* Reduce padding inside card sections */
+
+        [data-theme="light"] #guided-practice .next-pose-card .text-gray-700,
+        [data-theme="light"] #guided-practice .next-pose-card .text-gray-600,
+        [data-theme="light"] #guided-practice .next-pose-card .text-xs {
+            color: #1f2937 !important;
         }
+
+        [data-theme="light"] #guided-practice .next-pose-card .bg-white {
+            background-color: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+        }
+
+        [data-theme="light"] #guided-practice .next-pose-card .text-gray-500,
+        [data-theme="light"] #guided-practice .next-pose-card .text-gray-400 {
+            color: #6b7280 !important;
+        }
+
+        [data-theme="light"] #current-pose-instruction,
+        [data-theme="light"] #next-pose-instruction {
+            color: #1f2937 !important;
+        }
+
+        [data-theme="light"] #current-breathing-cue {
+            color: #ea580c !important;
+        }
+
+        [data-theme="light"] #current-pose-name,
+        [data-theme="light"] #next-pose-name {
+            color: #1f2937 !important;
+        }
+
+        [data-theme="light"] #guided-practice h3 {
+            color: #1f2937 !important;
+        }
+
+        [data-theme="light"] .timer-container {
+            color: #1f2937 !important;
+        }
+
+        [data-theme="light"] .timer-container .text-gray-600 {
+            color: #4b5563 !important;
+        }
+
+        /* Practice Tab ONLY - Alignment & Layout Fixes */
         #guided-practice .practice-controls {
-            padding: 0.25rem !important; /* Reduce padding on controls */
-            margin-bottom: 0.5rem !important; /* Reduce margin below controls */
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 1rem !important;
+            width: 100% !important;
+            padding: 1rem 0.5rem !important;
         }
 
-/* Style for 'Swipe to explore' text container in light mode */
-body[data-theme='light'] #guide .bg-blue-50 {
-    background-color: #eff6ff !important; /* Tailwind blue-50 */
-    color: #1d4ed8 !important; /* Tailwind blue-700 */
-}
+        #guided-practice .practice-controls button {
+            width: 50px !important;
+            height: 50px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 50% !important;
+            flex-shrink: 0 !important;
+        }
 
-/* Reduce padding/margin specifically on the Guide page cards */
-#guide .pose-card {
-    padding: 0.5rem !important; /* Reduce card internal padding */
-    margin-bottom: 0.5rem !important; /* Reduce space below cards */
-}
-#guide .p-4 {
-    padding: 0.5rem !important;
-}
-#guide .mb-4 {
-    margin-bottom: 0.5rem !important;
-}
-#guide .space-y-2 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse))) !important; /* Reduce space-y-2 */
-    margin-bottom: calc(0.25rem * var(--tw-space-y-reverse)) !important;
-}
+        #guided-practice .timer-container {
+            text-align: center !important;
+            flex: 1 !important;
+            padding: 0.5rem !important;
+        }
 
-/* No footer styles needed */
+        #guided-practice .timer-container #timer {
+            font-size: 2.5rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        #guided-practice .timer-container .text-xs {
+            font-size: 0.7rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        #guided-practice .pose-image-container {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+        }
+
+        #guided-practice .pose-image-container img {
+            display: block !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        #guided-practice .current-pose-card {
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+
+        #guided-practice .current-pose-card .flex {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+
+        #guided-practice .next-pose-card {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+
+        #guided-practice .next-pose-card .flex {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+
+        #guided-practice #current-pose-instruction,
+        #guided-practice #next-pose-instruction {
+            text-align: center !important;
+        }
+
+        /* Special Instruction Box - Bright Yellow with Dark Text (Both Themes) */
+        #special-instruction-container {
+            background-color: #fbbf24 !important;
+            color: #1f2937 !important;
+            padding: 1rem !important;
+            border-radius: 0.75rem !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            margin: 1rem 0 !important;
+            border: 2px solid #f59e0b !important;
+        }
+
+        #special-instruction-text {
+            font-size: 1.25rem !important;
+            font-weight: bold !important;
+            color: #1f2937 !important;
+            text-align: center !important;
+            letter-spacing: 0.05em !important;
+            margin: 0 !important;
+        }
+
+        /* Override both light and dark themes for this box */
+        [data-theme="light"] #special-instruction-container,
+        [data-theme="dark"] #special-instruction-container {
+            background-color: #fbbf24 !important;
+            color: #1f2937 !important;
+            border-color: #f59e0b !important;
+        }
+
+        [data-theme="light"] #special-instruction-text,
+        [data-theme="dark"] #special-instruction-text {
+            color: #1f2937 !important;
+        }
+
+        /* Light Mode - Info Boxes */
+        [data-theme="light"] #guide .bg-blue-50 {
+            background-color: #eff6ff !important;
+            color: #1e40af !important;
+        }
+
+        [data-theme="light"] #guide .text-blue-700,
+        [data-theme="light"] #guide .text-blue-800 {
+            color: #1e40af !important;
+        }
+
+        /* Light Mode - Timing Tab */
+        [data-theme="light"] #timing input,
+        [data-theme="light"] #timing select {
+            background-color: #ffffff !important;
+            color: #1f2937 !important;
+            border-color: #d1d5db !important;
+        }
+
+        [data-theme="light"] #timing label,
+        [data-theme="light"] #timing h2,
+        [data-theme="light"] #timing h3 {
+            color: #1f2937 !important;
+        }
+
+        /* Light Mode - Stats Tab */
+        [data-theme="light"] #stats h2,
+        [data-theme="light"] #stats h3,
+        [data-theme="light"] #stats h4 {
+            color: #1f2937 !important;
+        }
+
+        [data-theme="light"] #stats .rounded-xl.shadow-md {
+            background-color: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
+        }
+
+        [data-theme="light"] #stats .text-gray-500,
+        [data-theme="light"] #stats .text-gray-400 {
+            color: #6b7280 !important;
+        }
+
+        /* Light Mode - Video Tab */
+        [data-theme="light"] #video h2 {
+            color: #1f2937 !important;
+        }
+
+        [data-theme="light"] .video-link {
+            background-color: #f3f4f6 !important;
+            color: #1f2937 !important;
+            border-color: #d1d5db !important;
+        }
+
+        [data-theme="light"] .video-link h3,
+        [data-theme="light"] .video-link p {
+            color: #1f2937 !important;
+        }
+
+        [data-theme="light"] .video-link:hover {
+            background-color: #f97316 !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="light"] .video-link:hover h3,
+        [data-theme="light"] .video-link:hover p {
+            color: #ffffff !important;
+        }
+
+        /* Light Mode - Placeholder & Input Text */
+        [data-theme="light"] input::placeholder,
+        [data-theme="light"] select {
+            color: #6b7280 !important;
+        }
+
+        /* Light Mode - Button Text */
+        [data-theme="light"] button:not(.bg-gradient-to-r):not(.bg-green-500):not(.bg-yellow-500):not(.bg-orange-500):not(.bg-blue-500):not(.bg-green-500) {
+            color: #1f2937 !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans" data-theme="light">
     <div class="max-w-md mx-auto shadow-lg rounded-b-xl overflow-hidden mb-10" id="app-container">
         <!-- Navigation Header -->
-        <div class="flex border-b bg-white dark:bg-gray-800 p-2 text-center relative overflow-hidden shadow-lg rounded-t-lg" style="background-color: white ;">
-            
-            <button class="tab-btn flex-1 py-2 px-2 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="pose-guide">
-                <i class="fas fa-book-open text-lg text-gray-700 dark:text-gray-200"></i><span class="text-xs sm:text-sm">Guide</span>
+        <div class="flex border-b bg-white dark:bg-gray-800 p-3 text-center relative overflow-hidden shadow-lg rounded-t-lg">
+
+            <button class="tab-btn flex-1 py-3 px-3 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="pose-guide">
+                <i class="fas fa-book-open text-lg text-gray-700 dark:text-gray-200"></i><span class="text-sm">Guide</span>
             </button>
-            <button class="tab-btn flex-1 py-2 px-2 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="guided-practice">
-                <i class="fas fa-play-circle text-lg text-gray-700 dark:text-gray-200"></i><span class="text-xs sm:text-sm">Practice</span>
+            <button class="tab-btn flex-1 py-3 px-3 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="guided-practice">
+                <i class="fas fa-play-circle text-lg text-gray-700 dark:text-gray-200"></i><span class="text-sm">Practice</span>
             </button>
-            <button class="tab-btn flex-1 py-2 px-2 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="timing">
-                <i class="fas fa-clock text-lg text-gray-700 dark:text-gray-200"></i><span class="text-xs sm:text-sm">Timing</span>
+            <button class="tab-btn flex-1 py-3 px-3 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="timing">
+                <i class="fas fa-clock text-lg text-gray-700 dark:text-gray-200"></i><span class="text-sm">Timing</span>
             </button>
-            <button class="tab-btn flex-1 py-2 px-2 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="video">
-                <i class="fas fa-video text-lg text-gray-700 dark:text-gray-200"></i><span class="text-xs sm:text-sm">Video</span>
+            <button class="tab-btn flex-1 py-3 px-3 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="video">
+                <i class="fas fa-video text-lg text-gray-700 dark:text-gray-200"></i><span class="text-sm">Video</span>
             </button>
-            <button class="tab-btn flex-1 py-2 px-2 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="stats">
-                <i class="fas fa-chart-bar text-lg text-gray-700 dark:text-gray-200"></i><span class="text-xs sm:text-sm">Stats</span>
+            <button class="tab-btn flex-1 py-3 px-3 text-center font-medium text-gray-700 dark:text-gray-200 border-b-2 border-transparent hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 flex flex-col items-center" data-tab="stats">
+                <i class="fas fa-chart-bar text-lg text-gray-700 dark:text-gray-200"></i><span class="text-sm">Stats</span>
             </button>
         </div>
 
@@ -675,9 +483,6 @@ body[data-theme='light'] #guide .bg-blue-50 {
             <div id="pose-guide" class="tab-content active">
                 <div class="flex items-center justify-between mb-5">
                     <h2 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-yellow-600">12 Steps of Surya Namaskar</h2>
-                    <div class="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                        <i class="fas fa-info-circle mr-1"></i> Swipe to explore
-                    </div>
                 </div>
 
                 <div class="space-y-5">
@@ -925,10 +730,10 @@ body[data-theme='light'] #guide .bg-blue-50 {
                              <div class="sm:w-2/3">
                                 <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">Bring arms down, join palms at chest center. Return to starting position. Same as Pose 1.</p>
                                 <div class="mt-2 text-sm bg-orange-50 dark:bg-gray-600 p-2 rounded-lg inline-flex items-center">
-                                    <i class="fas fa-wind mr-2 text-orange-500"></i>
-                                    <span class="font-medium text-orange-700 dark:text-orange-300">Breathing:</span> 
-                                    <span class="ml-1 text-orange-600 dark:text-orange-200">Exhale
-                                </div>
+                                        <i class="fas fa-wind mr-2 text-orange-500"></i>
+                                        <span class="font-medium text-orange-700 dark:text-orange-300">Breathing:</span> 
+                                        <span class="ml-1 text-orange-600 dark:text-orange-200">Exhale</span>
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -1335,8 +1140,7 @@ body[data-theme='light'] #guide .bg-blue-50 {
     const SETTINGS_KEY = 'suryaNamaskarSettings'; // Key for localStorage
 
     // --- DOM Elements ---
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
+    // (tabBtns and tabContents will be queried after DOMContentLoaded)
     const timerDisplay = document.getElementById('timer');
     const playPauseBtn = document.getElementById('play-pause-btn');
     const playPauseIcon = document.getElementById('play-pause-icon');
@@ -1372,36 +1176,11 @@ body[data-theme='light'] #guide .bg-blue-50 {
     // --- Functions ---
     
     // Helper function to play sounds
-    function playSound(audioElement) {
-        if (!audioElement) return;
-        
-        // Ensure volume is set correctly before playing
-        audioElement.volume = 1;
-        
-        // Reset audio element
-        audioElement.pause();
-        audioElement.currentTime = 0;
-        
-        // Create a user interaction promise for iOS
-        const playPromise = audioElement.play();
-        
-        // Handle play() promise to catch errors properly
-        if (playPromise !== undefined) {
-            playPromise
-                .then(() => {
-                    console.log(`Playing sound: ${audioElement.src.split('/').pop()}`);
-                })
-                .catch(error => {
-                    console.error("Audio play failed:", error);
-                });
-        }
-    }
-
+    
     // PWA Service Worker Registration
     function registerServiceWorker() {
         if ('serviceWorker' in navigator) {
-             // Make sure the path is correct relative to your HTML file's location
-            navigator.serviceWorker.register('sw.js') // Use 'sw.js' if it's in the same directory
+            navigator.serviceWorker.register('sw.js')
                 .then(registration => {
                     console.log('Service Worker registered with scope:', registration.scope);
                 })
@@ -1411,7 +1190,7 @@ body[data-theme='light'] #guide .bg-blue-50 {
         }
     }
     
-    // Preload audio files for iOS compatibility
+    // --- Preload audio files for iOS compatibility ---
     function preloadAudioFiles() {
         // Get all audio elements
         const audioElements = [
@@ -1455,19 +1234,7 @@ body[data-theme='light'] #guide .bg-blue-50 {
         });
     }
 
-    // Tab Switching
-    function activateTab(tabId) {
-        tabBtns.forEach(b => {
-            const isCurrent = b.getAttribute('data-tab') === tabId;
-            b.classList.toggle('text-orange-600', isCurrent);
-            b.classList.toggle('border-orange-500', isCurrent);
-            b.classList.toggle('text-gray-500', !isCurrent);
-            b.classList.toggle('border-transparent', !isCurrent);
-        });
-        tabContents.forEach(content => {
-            content.classList.toggle('active', content.id === tabId);
-        });
-    }
+
 
     // Timing Tab: Create/Update Sliders
     function initializeTimingSliders() {
@@ -1501,20 +1268,20 @@ body[data-theme='light'] #guide .bg-blue-50 {
     // --- Settings Load/Save ---
     function loadSettings() {
          const savedSettings = localStorage.getItem(SETTINGS_KEY);
-         let settings;
+         let settings = null;
          let loadedDurations = null;
 
          if (savedSettings) {
              try {
-                settings = JSON.parse(savedSettings);
-                // Validate loaded settings structure
-                if (settings && settings.poseDurations && settings.poseDurations.length === totalPoses) {
-                    loadedDurations = settings.poseDurations;
-                } else {
-                    console.warn("Invalid settings format in localStorage, using defaults.");
-                    settings = null; // Force using defaults below
-                    localStorage.removeItem(SETTINGS_KEY);
-                }
+                 settings = JSON.parse(savedSettings);
+                 // Validate loaded settings structure
+                 if (settings && settings.poseDurations && settings.poseDurations.length === totalPoses) {
+                     loadedDurations = settings.poseDurations;
+                 } else {
+                     console.warn("Invalid settings format in localStorage, using defaults.");
+                     settings = null; // Force using defaults below
+                     localStorage.removeItem(SETTINGS_KEY);
+                 }
              } catch (e) {
                  console.error("Error parsing settings from localStorage, using defaults:", e);
                  settings = null;
@@ -2190,20 +1957,20 @@ body[data-theme='light'] #guide .bg-blue-50 {
             markBtn.disabled = false;
             markBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             
-    // Update the button text based on whether today is already marked
-    if (stats.days[today]) {
-        markBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Round';
-    } else {
-        markBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Start Today';
-    }
-    
-    // Add event listener for the "Complete Round" button
-    const completeRoundBtn = document.getElementById('complete-round-btn');
-    if (completeRoundBtn) {
-        completeRoundBtn.addEventListener('click', () => {
-            markTodayCompleted();
-        });
-    }
+            // Update the button text based on whether today is already marked
+            if (stats.days[today]) {
+                markBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Round';
+            } else {
+                markBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Start Today';
+            }
+            
+            // Add event listener for the "Complete Round" button
+            const completeRoundBtn = document.getElementById('complete-round-btn');
+            if (completeRoundBtn) {
+                completeRoundBtn.addEventListener('click', () => {
+                    markTodayCompleted();
+                });
+            }
         }
     }
 
@@ -2373,126 +2140,82 @@ body[data-theme='light'] #guide .bg-blue-50 {
         document.getElementById('share-today-rounds').textContent = todayRounds;
         document.getElementById('share-total-rounds').textContent = totalRounds;
         document.getElementById('share-streak').textContent = streak;
-        document.getElementById('share-date').textContent = new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+        document.getElementById('share-date').textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
     }
-    
-    // Call updateStatsUI on tab open
-    const statsTabBtn = document.querySelector('[data-tab="stats"]');
-    statsTabBtn.addEventListener('click', () => {
-        updateStatsUI();
-        updateTodayStatsUI();
-        setupTodayStatsButtons();
-        setupShareFunctionality();
-    });
-
-    // --- Event Listeners ---
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            activateTab(btn.getAttribute('data-tab'));
-        });
-    });
-
-    // Single play/pause button event listener
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    resetBtn.addEventListener('click', resetPractice);
-    saveSettingsBtn.addEventListener('click', saveSettings);
-    
-    // Dark mode toggle event listener
-    document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
 
     // --- Initialization ---
     document.addEventListener('DOMContentLoaded', () => {
+        // Query all needed DOM elements FIRST, before using them
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+
+        // Tab switching logic - define BEFORE calling it
+        function activateTab(tabId) {
+            tabBtns.forEach(b => {
+                const isCurrent = b.getAttribute('data-tab') === tabId;
+                b.classList.toggle('text-orange-600', isCurrent);
+                b.classList.toggle('border-orange-500', isCurrent);
+                b.classList.toggle('text-gray-500', !isCurrent);
+                b.classList.toggle('border-transparent', !isCurrent);
+            });
+            tabContents.forEach(content => {
+                content.classList.toggle('active', content.id === tabId);
+            });
+        }
+
+        // NOW call the initialization functions
         registerServiceWorker();
-        loadSettings(); // Load settings FIRST - this updates the poses array durations
-        loadThemePreference(); // Load theme preference
-        resetPractice(); // Set initial practice state using the loaded durations
-        activateTab('pose-guide'); // Start on the guide tab
-        addSpeedPresets(); // Add speed presets to Timing Tab
-        
+        loadSettings();
+        loadThemePreference();
+        resetPractice();
+        activateTab('pose-guide');
+        addSpeedPresets();
+
+        // Add click listeners to tab buttons
+        tabBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                activateTab(tabId);
+            });
+        });
+
+        // Single play/pause button event listener
+        if (playPauseBtn) playPauseBtn.addEventListener('click', togglePlayPause);
+        if (resetBtn) resetBtn.addEventListener('click', resetPractice);
+        if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveSettings);
+
+        // Dark mode toggle event listener
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) themeToggle.addEventListener('click', toggleDarkMode);
+
+        // Stats tab event listener
+        const statsTabBtn = document.querySelector('[data-tab="stats"]');
+        if (statsTabBtn) {
+            statsTabBtn.addEventListener('click', () => {
+                updateStatsUI();
+                updateTodayStatsUI();
+                setupTodayStatsButtons();
+                setupShareFunctionality();
+            });
+        }
+
         // Add event listeners for user interaction to preload audio on iOS
         document.addEventListener('click', function audioSetup() {
             preloadAudioFiles();
-            // Remove this listener after first interaction
             document.removeEventListener('click', audioSetup);
         }, { once: true });
+
+        // Replace moveToNextPose with moveToNextPoseWithStats
+        window.moveToNextPose = moveToNextPoseWithStats;
     });
-
-    // Replace moveToNextPose with moveToNextPoseWithStats
-    moveToNextPose = moveToNextPoseWithStats;
-
-    // Swipe navigation for tabs
-    const tabContainer = document.getElementById('app-container'); // Or a more specific container if needed
-    const tabs = document.querySelectorAll('.tab-content');
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    let touchStartX = 0;
-    let touchEndX = 0;
-    let currentTabIndex = 0; // Keep track of the current tab index
-
-    // Find initial active tab index
-    tabs.forEach((tab, index) => {
-        if (tab.classList.contains('active')) {
-            currentTabIndex = index;
-        }
-    });
-
-    tabs.forEach((tab, index) => {
-        tab.addEventListener('touchstart', (e) => {
-            // Ignore swipes if practice is running to avoid conflict
-            if (document.getElementById('guided-practice').contains(e.target) && isPlaying) return;
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-
-        tab.addEventListener('touchend', (e) => {
-            // Ignore swipes if practice is running
-            if (document.getElementById('guided-practice').contains(e.target) && isPlaying) return;
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe(); // Pass the current index implicitly via global var
-        }, { passive: true });
-    });
-
-    function handleSwipe() {
-        const swipeThreshold = 50; // Minimum pixels to swipe
-        const swipeDistance = touchEndX - touchStartX;
-
-        if (Math.abs(swipeDistance) > swipeThreshold) {
-            let nextIndex;
-            if (swipeDistance < 0) {
-                // Swipe Left - Go to Next Tab
-                nextIndex = (currentTabIndex + 1) % tabButtons.length;
-            } else {
-                // Swipe Right - Go to Previous Tab
-                nextIndex = (currentTabIndex - 1 + tabButtons.length) % tabButtons.length;
-            }
-            // Find the tab ID associated with the next index
-            const nextTabId = tabButtons[nextIndex].getAttribute('data-tab');
-            if (nextTabId) {
-                 window.switchTab(nextTabId); // Use the wrapped switchTab
-            }
-        }
-        // Reset touch points
-        touchStartX = 0;
-        touchEndX = 0;
-    }
-
-    // Wrap the original switchTab to update currentTabIndex
-    const originalSwitchTab = window.switchTab;
-    window.switchTab = function(tabId) {
-        originalSwitchTab(tabId); // Call the original function
-        // Update currentTabIndex based on the newly activated tab
-        tabButtons.forEach((btn, index) => {
-            if (btn.getAttribute('data-tab') === tabId) {
-                currentTabIndex = index;
-            }
-        });
-        // Ensure header visibility is correct after tab switch
-        checkScrollPosition();
-    };
-
-</script>
+    </script>
 </body>
 </html>
